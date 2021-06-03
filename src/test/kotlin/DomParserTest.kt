@@ -1,3 +1,5 @@
+import directives.Delete
+import directives.ForEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
@@ -60,6 +62,25 @@ class DomParserTest {
 
         val actual = parser.find(source)
         assertEquals(expected, actual)
+    }
+
+    @Test
+    fun repeatedElement() {
+        val source = "<div>one</div><div>two</div>"
+        val parser = DomParser("div")
+        val loop1 = Delete(parser.find(source)!!).compute(source)
+        val loop2 = Delete(parser.find(loop1)!!).compute(loop1)
+        assertEquals("onetwo", loop2)
+    }
+
+    @Test
+    fun nested() {
+        val source = "<div>Looped<div>Inner Loop</div></div>"
+        val parser = DomParser("div")
+        val actual = parser.find(source)
+
+        val expected = "Looped<div>Inner Loop</div>"
+        assertEquals(expected, actual?.content)
     }
 
 }

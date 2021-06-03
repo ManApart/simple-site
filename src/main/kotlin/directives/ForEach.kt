@@ -1,5 +1,6 @@
 package directives
 
+import Element
 import getNestedValue
 
 class ForEach(
@@ -9,6 +10,14 @@ class ForEach(
     private val sourceKeyPath: String,
     private val template: String
 ) {
+    constructor(element: Element) : this(
+        element.start,
+        element.end,
+        element.attributes["i"] ?: throw IllegalArgumentException("No index found!"),
+        element.attributes["src"] ?: throw IllegalArgumentException("No Src found!"),
+        element.content
+    )
+
     fun compute(source: String, data: Map<String, Any>): String {
         val list = data.getNestedValue(sourceKeyPath.split(".")) as List<*>
         val repeated = template.repeat(list.size)
