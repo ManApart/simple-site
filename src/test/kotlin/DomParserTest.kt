@@ -22,6 +22,14 @@ class DomParserTest {
         assertNull(actual)
     }
 
-    //TODO - self closing
+    @Test
+    fun parseSelfClosingElement() {
+        val source = "<include src=\"credits.html\"/>"
+        val parser = DomParser("include")
+        val expected = Element(0, source.length, mapOf("src" to "credits.html"), "")
+
+        val actual = parser.find(source)
+        assertEquals(expected, actual)
+    }
 
 }
