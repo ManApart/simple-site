@@ -1,39 +1,18 @@
 package directives
 
-import getBetween
-
+import getNestedValue
 
 class ForEach(
-    val start: Int,
-    val end: Int,
-    val indexName: String,
-    val sourceKeyPath: String,
-    val template: String
+    private val start: Int,
+    private val end: Int,
+    private val indexName: String,
+    private val sourceKeyPath: String,
+    private val template: String
 ) {
-    fun compute(source: String, files: Map<String, String>, data: Map<String, Any>): String {
-        return ""
-//        return source.substring(0, start) + files[src] + source.substring(end, source.length)
+    fun compute(source: String, data: Map<String, Any>): String {
+        val list = data.getNestedValue(sourceKeyPath.split(".")) as List<*>
+        val repeated = template.repeat(list.size)
+        return source.substring(0, start) + repeated + source.substring(end, source.length)
     }
 
-    companion object {
-        fun find(source: String): Include? {
-            val prefix = "<for"
-            val suffix = "/>"
-            val start = source.indexOf(prefix)
-            val end = source.indexOf(suffix)
-            return when {
-                start != -1 && end == -1 -> throw Exception("Include has no proper end!")
-                (start == -1 || end < start) -> null
-                else -> {
-                    val inner = source.substring(start + prefix.length, end)
-                    val src = getBetween("src=\"", "\"", inner)
-                    if (src == null) {
-                        throw Exception("Include had no source!")
-                    } else {
-                        Include(start, end + suffix.length, src)
-                    }
-                }
-            }
-        }
-    }
 }

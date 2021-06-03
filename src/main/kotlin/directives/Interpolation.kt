@@ -1,5 +1,7 @@
 package directives
 
+import getNestedValue
+
 class Interpolation(
     val start: Int,
     val end: Int,
@@ -8,25 +10,11 @@ class Interpolation(
 
     fun compute(source: String, data: Map<String, Any>): String {
         val parts = keyPath.split(".")
-        val newValue: String = data.getNestedValue(parts) as String
+        val newValue: String = data.getNestedValue(parts).toString()
         return source.substring(0, start) + newValue + source.substring(end, source.length)
     }
 
-    private fun <K, V> Map<K, V>.getNestedValue(keys: List<String>): Any {
-        return if (keys.size == 1){
-            getByName(keys.first()).toString()
-        } else {
-            val newMap = getByName(keys.first())
-            if (newMap is List<*>){
-                throw IllegalStateException("Can't handle arrays: $newMap")
-            }
-            (newMap as Map<String, Any>).getNestedValue(keys.subList(1, keys.size))
-        }
-    }
 
-    private fun <K, V> Map<K, V>.getByName(name: String): V {
-        return entries.firstOrNull { it.key == name }?.value ?: throw IllegalArgumentException("No value for $name")
-    }
 
     companion object {
         fun find(source: String): Interpolation? {

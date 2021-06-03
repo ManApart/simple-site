@@ -68,3 +68,20 @@ fun getBetween(prefix: String, suffix: String, source: String): String? {
         source.substring(start + prefix.length, end)
     }
 }
+
+
+fun <K, V> Map<K, V>.getNestedValue(keys: List<String>): Any {
+    return if (keys.size == 1){
+        getByName(keys.first()) as Any
+    } else {
+        val newMap = getByName(keys.first())
+        if (newMap is List<*>){
+            throw IllegalStateException("Can't handle arrays: $newMap")
+        }
+        (newMap as Map<String, Any>).getNestedValue(keys.subList(1, keys.size))
+    }
+}
+
+private fun <K, V> Map<K, V>.getByName(name: String): V {
+    return entries.firstOrNull { it.key == name }?.value ?: throw IllegalArgumentException("No value for $name")
+}
