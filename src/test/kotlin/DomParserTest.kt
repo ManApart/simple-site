@@ -32,4 +32,34 @@ class DomParserTest {
         assertEquals(expected, actual)
     }
 
+    @Test
+    fun parseSelfClosingElementLooksForward() {
+        val source = "<br/><include src=\"credits.html\"/>"
+        val parser = DomParser("include")
+        val expected = Element(5, source.length, mapOf("src" to "credits.html"), "")
+
+        val actual = parser.find(source)
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun parseSelfClosingElementIgnoresNext() {
+        val source = "<include src=\"credits.html\"/><br/>"
+        val parser = DomParser("include")
+        val expected = Element(0, source.length-5, mapOf("src" to "credits.html"), "")
+
+        val actual = parser.find(source)
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun parseElementIgnoresNext() {
+        val source = "<include src=\"credits.html\"></include><include></include>"
+        val parser = DomParser("include")
+        val expected = Element(0, "<include src=\"credits.html\"></include>".length, mapOf("src" to "credits.html"), "")
+
+        val actual = parser.find(source)
+        assertEquals(expected, actual)
+    }
+
 }

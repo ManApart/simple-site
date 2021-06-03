@@ -3,7 +3,7 @@ class DomParser(private val name: String) {
         val prefix = "<$name"
         val suffix = "</$name>"
         val start = source.indexOf(prefix)
-        val tagEnd = source.indexOf(">")
+        val tagEnd = source.indexOf(">", start)
         val selfClosing = (source[tagEnd - 1] == '/')
         val end = if (selfClosing) tagEnd else source.indexOf(suffix)
 

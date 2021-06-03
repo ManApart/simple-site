@@ -37,11 +37,12 @@ fun parseData(sourceFolder: String): Map<String, Any> {
 }
 
 fun include(input: String, files: Map<String, String>): String {
+    val parser = DomParser("include")
     var included = input
-    var directive = Include.find(included)
+    var directive = parser.find(included)
     while (directive != null) {
-        included = directive.compute(included, files)
-        directive = Include.find(included)
+        included = Include(directive).compute(included, files)
+        directive = parser.find(included)
     }
 
     return included
