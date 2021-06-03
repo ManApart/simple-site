@@ -1,7 +1,7 @@
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
-import websiteBuilder.getBetween
+import getBetween
 
 class WebsiteBuilderTest {
 

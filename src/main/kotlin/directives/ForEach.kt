@@ -1,6 +1,6 @@
-package websiteBuilder.directives
+package directives
 
-import websiteBuilder.getBetween
+import getBetween
 
 
 class ForEach(

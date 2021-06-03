@@ -1,7 +1,6 @@
-package websiteBuilder.directives
+package directives
 
-import websiteBuilder.getBetween
-
+import getBetween
 
 data class Include(val start: Int, val end: Int, val src: String) {
 

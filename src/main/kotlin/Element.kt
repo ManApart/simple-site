@@ -1,5 +1,3 @@
-package websiteBuilder
-
 data class Element(
     val start: Int,
     val end: Int,

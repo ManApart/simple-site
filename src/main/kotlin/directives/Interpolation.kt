@@ -1,5 +1,4 @@
-package websiteBuilder.directives
-
+package directives
 
 class Interpolation(
     val start: Int,

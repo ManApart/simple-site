@@ -1,8 +1,4 @@
-package websiteBuilder
-
-import websiteBuilder.directives.Include
-
-class DomParser(private val name: String, private val attributeNames: List<String>) {
+class DomParser(private val name: String) {
     fun find(source: String): Element? {
         val prefix = "<$name"
         val suffix = "</$name>"
@@ -16,32 +12,17 @@ class DomParser(private val name: String, private val attributeNames: List<Strin
         }
         val tag = source.substring(start + prefix.length, tagEnd)
         val attributes = determineAttributes(tag)
-        val content = source.substring(tagEnd, end)
+        val content = source.substring(tagEnd + 1, end)
 
-        return Element(start, end, attributes, content)
+        return Element(start, end + suffix.length, attributes, content)
     }
 
     private fun determineAttributes(tag: String): Map<String, String> {
-        return mapOf()
-    }
-
-    private fun find2(source: String): Include? {
-        val prefix = "<include"
-        val suffix = "/>"
-        val start = source.indexOf(prefix)
-        val end = source.indexOf(suffix)
-        return when {
-            start != -1 && end == -1 -> throw Exception("Include has no proper end!")
-            (start == -1 || end < start) -> null
-            else -> {
-                val inner = source.substring(start + prefix.length, end)
-                val src = websiteBuilder.getBetween("src=\"", "\"", inner)
-                if (src == null) {
-                    throw Exception("Include had no source!")
-                } else {
-                    Include(start, end + suffix.length, src)
-                }
-            }
+        return tag.trim().split(" ").associate { keyPair ->
+            val parts = keyPair.split("=")
+            val key = parts.first().trim()
+            val value = parts.last().replace("\"", "")
+            key to value
         }
     }
 

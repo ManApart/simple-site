@@ -2,7 +2,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import websiteBuilder.directives.Include
+import directives.Include
 
 class IncludeDirectiveTest {
 

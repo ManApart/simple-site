@@ -1,9 +1,7 @@
-package websiteBuilder
-
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import websiteBuilder.directives.Include
-import websiteBuilder.directives.Interpolation
+import directives.Include
+import directives.Interpolation
 import java.io.File
 
 val mapper = jacksonObjectMapper()
