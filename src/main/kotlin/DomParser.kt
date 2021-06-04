@@ -14,7 +14,6 @@ class DomParser(private val name: String) {
         }
     }
 
-
     private fun findSelfClosingElement(
         start: Int,
         end: Int,
@@ -40,7 +39,6 @@ class DomParser(private val name: String) {
         }
     }
 
-
     private fun findElement(
         start: Int,
         tagEnd: Int,
@@ -48,7 +46,7 @@ class DomParser(private val name: String) {
         prefix: String,
         suffix: String
     ): Element? {
-        val end = source.indexOf(suffix)
+        val end = findEnd(start, source, suffix, prefix)
 
         when {
             start != -1 && end == -1 -> throw Exception("$name has no proper end!")
@@ -62,13 +60,27 @@ class DomParser(private val name: String) {
         return Element(start, elementEnd, attributes, content)
     }
 
-//    private fun getBetween(prefix: String, suffix: String, source: String): String? {
-//        val start = source.lastIndexOf(prefix)
-//        val end = source.lastIndexOf(suffix)
-//        return if (start == -1 || end == -1 || end < start) {
-//            null
-//        } else {
-//            source.substring(start + prefix.length, end)
-//        }
-//    }
+    private fun findEnd(
+        start: Int,
+        source: String,
+        suffix: String,
+        prefix: String
+    ): Int {
+        var lead = start + 1
+        var end = source.indexOf(suffix, lead)
+        var nextStart = source.indexOf(prefix, lead)
+        var nestCount = if (nextStart != -1 && nextStart < end) 1 else 0
+
+        while (nestCount > 0) {
+            lead = nextStart + 1
+            nextStart = source.indexOf(prefix, lead)
+            end = source.indexOf(suffix, lead)
+            if (nextStart < end) {
+                nestCount++
+            } else {
+                nestCount--
+            }
+        }
+        return end
+    }
 }

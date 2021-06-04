@@ -83,4 +83,6 @@ class DomParserTest {
         assertEquals(expected, actual?.content)
     }
 
+    //unproper nested doesn't loop forever
+
 }
