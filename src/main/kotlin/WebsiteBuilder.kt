@@ -51,11 +51,11 @@ fun include(input: String, files: Map<String, String>): String {
     return included
 }
 
-fun interpolate(input: String, data: Map<String, Any>): String {
+fun interpolate(input: String, data: Map<String, Any>, scopedData: Map<String, Any> = mapOf()): String {
     var interpolated = input
     var directive = Interpolation.find(interpolated)
     while (directive != null) {
-        interpolated = directive.compute(interpolated, data)
+        interpolated = directive.compute(interpolated, data, scopedData)
         directive = Interpolation.find(interpolated)
     }
 
@@ -85,18 +85,21 @@ fun getBetween(prefix: String, suffix: String, source: String): String? {
 }
 
 
-fun <K, V> Map<K, V>.getNestedValue(keys: List<String>): Any {
+fun <K, V> Map<K, V>.getNestedValue(keys: List<String>): Any? {
     return if (keys.size == 1){
-        getByName(keys.first()) as Any
+        getByName(keys.first())
     } else {
         val newMap = getByName(keys.first())
         if (newMap is List<*>){
             throw IllegalStateException("Can't handle arrays: $newMap")
+        } else if (newMap == null){
+            return null
         }
         (newMap as Map<String, Any>).getNestedValue(keys.subList(1, keys.size))
     }
 }
 
-private fun <K, V> Map<K, V>.getByName(name: String): V {
-    return entries.firstOrNull { it.key == name }?.value ?: throw IllegalArgumentException("No value for $name")
+private fun <K, V> Map<K, V>.getByName(name: String): V? {
+    return entries.firstOrNull { it.key == name }?.value
+//    return entries.firstOrNull { it.key == name }?.value value?: throw IllegalArgumentException("No value for $name")
 }

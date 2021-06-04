@@ -82,5 +82,38 @@ class InterpolationDirectiveTest {
         }
     }
 
+    @Test
+    fun computeScopedData() {
+        val source = "{{cat.name}}"
+        val data = mapOf<String, Any>(
+            "cat" to mapOf<String, Any>(
+                "name" to "smudge"
+            )
+        )
+        val scopedData = mapOf<String, Any>(
+            "pet" to mapOf<String, Any>(
+                "name" to "gus"
+            )
+        )
+        val interpolation = Interpolation(0, source.length, "pet.name")
+        val actual = interpolation.compute(source, data, scopedData)
+        assertEquals("gus", actual)
+    }
+
+    @Test
+    fun computeScopedDataJustString() {
+        val source = "{{cat.name}}"
+        val data = mapOf<String, Any>(
+            "cat" to mapOf<String, Any>(
+                "name" to "smudge"
+            )
+        )
+        val scopedData = mapOf<String, Any>(
+            "pet" to "frank"
+        )
+        val interpolation = Interpolation(0, source.length, "pet")
+        val actual = interpolation.compute(source, data, scopedData)
+        assertEquals("frank", actual)
+    }
 
 }

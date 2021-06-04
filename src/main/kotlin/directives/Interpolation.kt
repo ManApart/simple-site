@@ -8,13 +8,26 @@ class Interpolation(
     val keyPath: String
 ) {
 
-    fun compute(source: String, data: Map<String, Any>): String {
+    fun compute(
+        source: String,
+        data: Map<String, Any>,
+        scopedData: Map<String, Any> = mapOf<String, String>()
+    ): String {
         val parts = keyPath.split(".")
-        val newValue: String = data.getNestedValue(parts).toString()
+        val newValue: String = getValue(data, parts, scopedData)
         return source.substring(0, start) + newValue + source.substring(end, source.length)
     }
 
-
+    private fun getValue(
+        data: Map<String, Any>,
+        parts: List<String>,
+        scopedData: Map<String, Any>
+    ): String {
+        return (data.getNestedValue(parts)
+            ?: scopedData.getNestedValue(parts)
+            ?: throw IllegalArgumentException("No value for ${parts.joinToString(".")}")
+                ).toString()
+    }
 
     companion object {
         fun find(source: String): Interpolation? {

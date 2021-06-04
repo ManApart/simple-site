@@ -37,5 +37,19 @@ class ForEachDirectiveTest {
         assertEquals(expected, loop3)
     }
 
+    @Test
+    fun interpolatedLoop() {
+        val source = "<for i=\"pet\" src=\"pets\">{{pet.name}} </for>"
+        val directive = ForEach(0, source.length, "pet", "pets", "{{pet.name}} ")
+        val data = mapOf(
+            "pets" to listOf(
+                mapOf("name" to "Smudge"),
+                mapOf("name" to "Ollie")
+            )
+        )
+        val actual = directive.compute(source, data)
+        val expected = "Smudge Ollie "
+        assertEquals(expected, actual)
+    }
 
 }
