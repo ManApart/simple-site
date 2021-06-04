@@ -25,6 +25,10 @@ fun buildSite(sourceFolder: String) {
     File("$sourceFolder/../out/index.html").also {
         it.parentFile.mkdirs()
     }.writeText(interpolated)
+
+    File("$sourceFolder/css/").listFiles()!!.forEach {
+        it.copyTo(File("$sourceFolder/../out/${it.name}"))
+    }
 }
 
 fun parseFiles(sourceFolder: String): Map<String, String> {

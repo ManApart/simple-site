@@ -4,6 +4,7 @@ import java.io.File
 import java.nio.file.FileSystems
 import java.nio.file.StandardWatchEventKinds
 
+//TODO - also watch css and data folders
 fun main(){
     val text = File("./src/main/resources/config.json").readText()
     val config: Config = jacksonObjectMapper().readValue(text)
