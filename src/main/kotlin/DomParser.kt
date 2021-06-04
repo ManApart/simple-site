@@ -66,16 +66,14 @@ class DomParser(private val name: String) {
         suffix: String,
         prefix: String
     ): Int {
-        var lead = start + 1
-        var end = source.indexOf(suffix, lead)
-        var nextStart = source.indexOf(prefix, lead)
+        var end = source.indexOf(suffix, start)
+        var nextStart = source.indexOf(prefix, start + 1)
         var nestCount = if (nextStart != -1 && nextStart < end) 1 else 0
 
         while (nestCount > 0) {
-            lead = nextStart + 1
-            nextStart = source.indexOf(prefix, lead)
-            end = source.indexOf(suffix, lead)
-            if (nextStart < end) {
+            nextStart = source.indexOf(prefix, nextStart + 1)
+            end = source.indexOf(suffix, end + 1)
+            if (nextStart != -1 && nextStart < end) {
                 nestCount++
             } else {
                 nestCount--

@@ -3,6 +3,7 @@ import directives.ForEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 class DomParserTest {
 
@@ -48,7 +49,7 @@ class DomParserTest {
     fun parseSelfClosingElementIgnoresNext() {
         val source = "<include src=\"credits.html\"/><br/>"
         val parser = DomParser("include")
-        val expected = Element(0, source.length-5, mapOf("src" to "credits.html"), "")
+        val expected = Element(0, source.length - 5, mapOf("src" to "credits.html"), "")
 
         val actual = parser.find(source)
         assertEquals(expected, actual)
@@ -83,6 +84,14 @@ class DomParserTest {
         assertEquals(expected, actual?.content)
     }
 
-    //unproper nested doesn't loop forever
+    @Test
+    fun nestedNoEnd() {
+        val source = "<div>Looped<div>Inner Loop</div>"
+        val parser = DomParser("div")
+
+        assertThrows<Exception> {
+            parser.find(source)
+        }
+    }
 
 }
