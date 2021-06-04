@@ -5,13 +5,17 @@ class DomParser(private val name: String) {
         val start = source.indexOf(prefix)
         val tagEnd = source.indexOf(">", start)
         val nextStart = source.indexOf(prefix, start + 1)
-        val selfClosing = (source[tagEnd - 1] == '/' && (nextStart == -1 || nextStart > tagEnd))
+        val selfClosing = (getChar(source, tagEnd - 1) == '/' && (nextStart == -1 || nextStart > tagEnd))
 
         return if (selfClosing) {
             findSelfClosingElement(start, tagEnd, source, prefix)
         } else {
             findElement(start, tagEnd, source, prefix, suffix)
         }
+    }
+
+    private fun getChar(string: String, position: Int): Char? {
+        return if (position >= 0 && position < string.length) string[position] else null
     }
 
     private fun findSelfClosingElement(
