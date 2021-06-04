@@ -1,5 +1,6 @@
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import directives.ForEach
 import directives.Include
 import directives.Interpolation
 import java.io.File
@@ -17,11 +18,13 @@ fun buildSite(sourceFolder: String) {
     val files = parseFiles(sourceFolder)
     val data = parseData(sourceFolder)
 
-    val included = interpolate(include(files["index.html"]!!, files), data)
+    val included = include(files["index.html"]!!, files)
+    val looped = loop(included, data)
+    val interpolated = interpolate(looped, data)
 
     File("$sourceFolder/../out/index.html").also {
         it.parentFile.mkdirs()
-    }.writeText(included)
+    }.writeText(interpolated)
 }
 
 fun parseFiles(sourceFolder: String): Map<String, String> {
@@ -49,14 +52,26 @@ fun include(input: String, files: Map<String, String>): String {
 }
 
 fun interpolate(input: String, data: Map<String, Any>): String {
-    var included = input
-    var directive = Interpolation.find(included)
+    var interpolated = input
+    var directive = Interpolation.find(interpolated)
     while (directive != null) {
-        included = directive.compute(included, data)
-        directive = Interpolation.find(included)
+        interpolated = directive.compute(interpolated, data)
+        directive = Interpolation.find(interpolated)
     }
 
-    return included
+    return interpolated
+}
+
+fun loop(input: String, data: Map<String, Any>): String {
+    val parser = DomParser("for")
+    var looped = input
+    var directive = parser.find(looped)
+    while (directive != null) {
+        looped = ForEach(directive).compute(looped, data)
+        directive = parser.find(looped)
+    }
+
+    return looped
 }
 
 fun getBetween(prefix: String, suffix: String, source: String): String? {

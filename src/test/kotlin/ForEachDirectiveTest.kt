@@ -31,9 +31,10 @@ class ForEachDirectiveTest {
         val parser = DomParser("for")
         val loop1 = ForEach(parser.find(source)!!).compute(source, data)
         val loop2 = ForEach(parser.find(loop1)!!).compute(loop1, data)
+        val loop3 = ForEach(parser.find(loop2)!!).compute(loop2, data)
 
         val expected = "LoopedInner LoopInner LoopLoopedInner LoopInner Loop"
-        assertEquals(expected, loop2)
+        assertEquals(expected, loop3)
     }
 
 
