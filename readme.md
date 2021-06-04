@@ -1,11 +1,17 @@
 # Simple Site
 
-Slightly extend html in order to build sites that don't require javascript
+Slightly extend html in order to build sites that don't require javascript.
+
+WebsiteBuilder builds your files.
+
+To Autoreload, run SiteWatcher
 
 ```
 npm i -g browser-sync
-browser-sync start -s -f ./out
-node publish.js
+cd ./out
+browser-sync start -s -f .
 ```
+Navigate to localhost:3000
 
-Navigate to localhost:3000/out
+
+Manually copy your assets and css to the out folder for now
