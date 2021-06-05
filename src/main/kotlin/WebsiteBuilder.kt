@@ -26,9 +26,11 @@ fun buildSite(sourceFolder: String) {
         it.parentFile.mkdirs()
     }.writeText(interpolated)
 
-    File("$sourceFolder/css/").listFiles()!!.forEach {
-        it.copyTo(File("$sourceFolder/../out/${it.name}"))
-    }
+    val css = File("$sourceFolder/css/").listFiles()!!
+        .joinToString("\n") { it.readText() }
+
+    File("$sourceFolder/../out/styles.css").writeText(css)
+
 }
 
 fun parseFiles(sourceFolder: String): Map<String, String> {
@@ -90,13 +92,13 @@ fun getBetween(prefix: String, suffix: String, source: String): String? {
 
 
 fun <K, V> Map<K, V>.getNestedValue(keys: List<String>): Any? {
-    return if (keys.size == 1){
+    return if (keys.size == 1) {
         getByName(keys.first())
     } else {
         val newMap = getByName(keys.first())
-        if (newMap is List<*>){
+        if (newMap is List<*>) {
             throw IllegalStateException("Can't handle arrays: $newMap")
-        } else if (newMap == null){
+        } else if (newMap == null) {
             return null
         }
         (newMap as Map<String, Any>).getNestedValue(keys.subList(1, keys.size))
