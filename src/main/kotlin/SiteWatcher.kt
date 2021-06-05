@@ -4,24 +4,34 @@ import java.io.File
 import java.nio.file.FileSystems
 import java.nio.file.StandardWatchEventKinds
 
-//TODO - also watch css and data folders
-fun main(){
+fun main() {
     val text = File("./src/main/resources/config.json").readText()
     val config: Config = jacksonObjectMapper().readValue(text)
-    val currentDirectory  = File(config.folderPath)
+    val pathToWatch = File(config.folderPath).toPath()
+    val cssPath = File(config.folderPath + "/css").toPath()
     val watchService = FileSystems.getDefault().newWatchService()
-    val pathToWatch = currentDirectory.toPath()
 
-    val pathKey = pathToWatch.register(watchService, StandardWatchEventKinds.ENTRY_CREATE,
-        StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE)
+    val pathKey = pathToWatch.register(
+        watchService, StandardWatchEventKinds.ENTRY_CREATE,
+        StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE
+    )
+    val pathKeyCss = cssPath.register(
+        watchService, StandardWatchEventKinds.ENTRY_CREATE,
+        StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE
+    )
 
     while (true) {
         Thread.sleep(500)
         val watchKey = watchService.take()
 
-       if (watchKey.pollEvents().isNotEmpty()){
-           buildSite(config.folderPath)
-       }
+        if (watchKey.pollEvents().isNotEmpty()) {
+            println("Building!")
+            try {
+                buildSite(config.folderPath)
+            } catch (ex: Exception){
+                println(ex.message)
+            }
+        }
 
         if (!watchKey.reset()) {
             watchKey.cancel()
@@ -31,4 +41,5 @@ fun main(){
     }
 
     pathKey.cancel()
+    pathKeyCss.cancel()
 }
