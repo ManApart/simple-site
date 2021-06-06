@@ -20,6 +20,7 @@ fun main() {
         StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE
     )
 
+    buildSite(config.folderPath)
     var lastBuild = System.currentTimeMillis()
     while (true) {
         val watchKey = watchService.take()
