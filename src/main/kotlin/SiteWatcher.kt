@@ -20,16 +20,19 @@ fun main() {
         StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE
     )
 
+    var lastBuild = System.currentTimeMillis()
     while (true) {
-        Thread.sleep(500)
         val watchKey = watchService.take()
 
         if (watchKey.pollEvents().isNotEmpty()) {
-            println("Building!")
-            try {
-                buildSite(config.folderPath)
-            } catch (ex: Exception){
-                println(ex.message)
+            if (System.currentTimeMillis() > lastBuild + 500) {
+                try {
+                    buildSite(config.folderPath)
+                } catch (ex: Exception) {
+                    println(ex.message)
+                }
+                lastBuild = System.currentTimeMillis()
+                println("Built at $lastBuild")
             }
         }
 
