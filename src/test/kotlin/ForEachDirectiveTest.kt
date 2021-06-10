@@ -76,4 +76,19 @@ class ForEachDirectiveTest {
         assertEquals(expected, actual)
     }
 
+    @Test
+    fun loopWithIfNotNull() {
+        val source = "<for i=\"pet\" src=\"pets\"><ifnotnull src=\"pet.name\">Here</ifnotnull></for>"
+        val directive = ForEach(0, source.length, "pet", "pets", "<ifnotnull src=\"pet.name\">Here</ifnotnull>")
+        val data = mapOf(
+            "pets" to listOf(
+                mapOf("name" to "Smudge"),
+                mapOf("name" to "Ollie")
+            )
+        )
+        val actual = directive.compute(source, data)
+        val expected = "HereHere"
+        assertEquals(expected, actual)
+    }
+
 }

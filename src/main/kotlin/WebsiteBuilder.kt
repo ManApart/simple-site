@@ -52,11 +52,11 @@ fun parseData(sourceFolder: String): Map<String, Any> {
     }
 }
 
-private fun String.convert(transformer: Transformer, data: Map<String, Any>): String {
-    return transformer.transform(this, data)
+fun String.convert(transformer: Transformer, data: Map<String, Any>, scopedData: Map<String, Any> = mapOf()): String {
+    return transformer.transform(this, data, scopedData)
 }
 
-private fun String.interpolate(data: Map<String, Any>): String {
+fun String.interpolate(data: Map<String, Any>): String {
     return interpolate(this, data)
 }
 
