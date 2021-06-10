@@ -26,8 +26,8 @@ fun main() {
         val watchKey = watchService.take()
 
         if (watchKey.pollEvents().isNotEmpty()) {
-            Thread.sleep(100)
             if (System.currentTimeMillis() > lastBuild + 500) {
+                Thread.sleep(100)
                 try {
                     buildSite(config.folderPath)
                 } catch (ex: Exception) {

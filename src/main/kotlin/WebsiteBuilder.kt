@@ -62,18 +62,18 @@ fun interpolate(input: String, data: Map<String, Any>, scopedData: Map<String, A
     var directive = Interpolation.find(interpolated)
     while (directive != null) {
         interpolated = directive.compute(interpolated, data, scopedData)
-        directive = Interpolation.find(interpolated)
+        directive = Interpolation.find(interpolated, directive.end)
     }
 
     return interpolated
 }
 
-fun loop(input: String, data: Map<String, Any>): String {
+fun loop(input: String, data: Map<String, Any>, scopedData: Map<String, Any> = mapOf()): String {
     val parser = DomParser("for")
     var looped = input
     var directive = parser.find(looped)
     while (directive != null) {
-        looped = ForEach(directive).compute(looped, data)
+        looped = ForEach(directive).compute(looped, data, scopedData)
         directive = parser.find(looped)
     }
 

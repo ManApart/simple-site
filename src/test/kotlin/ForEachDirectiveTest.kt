@@ -29,12 +29,24 @@ class ForEachDirectiveTest {
             )
         )
         val parser = DomParser("for")
-        val loop1 = ForEach(parser.find(source)!!).compute(source, data)
-        val loop2 = ForEach(parser.find(loop1)!!).compute(loop1, data)
-        val loop3 = ForEach(parser.find(loop2)!!).compute(loop2, data)
-
+        val actual = ForEach(parser.find(source)!!).compute(source, data)
         val expected = "LoopedInner LoopInner LoopLoopedInner LoopInner Loop"
-        assertEquals(expected, loop3)
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun nestedMultipleScopes() {
+        val source = "<for i=\"pet\" src=\"pets\">{{pet.name}}<for i=\"toy\" src=\"pet.toys\">{{toy.name}}</for></for>"
+        val data = mapOf(
+            "pets" to listOf(
+                mapOf("name" to "Smudge", "toys" to listOf(mapOf("name" to "chewy"), mapOf("name" to "mouse"))),
+                mapOf("name" to "Ollie", "toys" to listOf(mapOf("name" to "bone")))
+            )
+        )
+        val parser = DomParser("for")
+        val actual = ForEach(parser.find(source)!!).compute(source, data)
+        val expected = "SmudgechewymouseOlliebone"
+        assertEquals(expected, actual)
     }
 
     @Test
@@ -49,6 +61,18 @@ class ForEachDirectiveTest {
         )
         val actual = directive.compute(source, data)
         val expected = "Smudge Ollie "
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun rawList() {
+        val source = "<for i=\"name\" src=\"names\">{{name}}</for>"
+        val directive = ForEach(0, source.length, "name", "names", "{{name}}")
+        val data = mapOf(
+            "names" to listOf("Smudge", "Ollie")
+        )
+        val actual = directive.compute(source, data)
+        val expected = "SmudgeOllie"
         assertEquals(expected, actual)
     }
 

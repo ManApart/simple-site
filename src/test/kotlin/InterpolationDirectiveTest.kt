@@ -17,6 +17,18 @@ class InterpolationDirectiveTest {
     }
 
     @Test
+    fun findTakesStart() {
+        val source = "{{cat.name}}{{toy.color}}"
+        val start = "{{cat.name}}".length
+        val actual = Interpolation.find(source, start)
+        val expected = Interpolation(start, source.length, "toy.color")
+        assertNotNull(actual)
+        assertEquals(expected.start, actual?.start)
+        assertEquals(expected.end, actual?.end)
+        assertEquals(expected.keyPath, actual?.keyPath)
+    }
+
+    @Test
     fun findNoMatch() {
         val source = "<jimbo src=\"home.html\">"
         val actual = Interpolation.find(source)
@@ -114,6 +126,21 @@ class InterpolationDirectiveTest {
         val interpolation = Interpolation(0, source.length, "pet")
         val actual = interpolation.compute(source, data, scopedData)
         assertEquals("frank", actual)
+    }
+
+    @Test
+    fun ignoreValuesWeDontKnowYet() {
+        val source = "{{cat.name}}"
+        val interpolation = Interpolation(0, source.length, "cat.name")
+        val actual = interpolation.compute(source, mapOf())
+        assertEquals("{{cat.name}}", actual)
+    }
+
+    @Test
+    fun findDoesNotInfiniteLoop() {
+        val source = "{{cat.name}}{{builder.tool}}"
+        val actual = interpolate(source, mapOf())
+        assertEquals("{{cat.name}}{{builder.tool}}", actual)
     }
 
 }

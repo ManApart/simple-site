@@ -15,3 +15,13 @@ Navigate to localhost:3000
 
 
 Manually copy your assets and css to the out folder for now
+
+```
+<for i="pet" src="pets">{{pet.name}} </for>
+<include src="project.html" />
+{{project.name}}
+```
+
+## TODO
+
+Possible to do some sort of if logic?
