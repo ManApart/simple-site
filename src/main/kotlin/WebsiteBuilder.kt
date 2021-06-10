@@ -52,6 +52,10 @@ fun parseData(sourceFolder: String): Map<String, Any> {
     }
 }
 
+private fun String.convert(transformer: Transformer, data: Map<String, Any>): String {
+    return transformer.transform(this, data)
+}
+
 private fun String.interpolate(data: Map<String, Any>): String {
     return interpolate(this, data)
 }
@@ -66,17 +70,6 @@ fun interpolate(input: String, data: Map<String, Any>, scopedData: Map<String, A
 
     return interpolated
 }
-
-fun getBetween(prefix: String, suffix: String, source: String): String? {
-    val start = source.lastIndexOf(prefix)
-    val end = source.lastIndexOf(suffix)
-    return if (start == -1 || end == -1 || end < start) {
-        null
-    } else {
-        source.substring(start + prefix.length, end)
-    }
-}
-
 
 fun <K, V> Map<K, V>.getNestedValue(keys: List<String>): Any? {
     return if (keys.size == 1) {
@@ -95,9 +88,5 @@ fun <K, V> Map<K, V>.getNestedValue(keys: List<String>): Any? {
 private fun <K, V> Map<K, V>.getByName(name: String): V? {
     return entries.firstOrNull { it.key == name }?.value
 //    return entries.firstOrNull { it.key == name }?.value value?: throw IllegalArgumentException("No value for $name")
-}
-
-private fun String.convert(transformer: Transformer, data: Map<String, Any>): String {
-    return transformer.transform(this, data)
 }
 
