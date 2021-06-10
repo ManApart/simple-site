@@ -20,6 +20,7 @@ Manually copy your assets and css to the out folder for now
 <for i="pet" src="pets">{{pet.name}} </for>
 <include src="project.html" />
 {{project.name}}
+"<ifnotnull src=\"pets\">content</ifnotnull>
 ```
 
 ## TODO
