@@ -3,7 +3,7 @@ package directives
 import Element
 import getNestedValue
 import interpolate
-import loop
+import looper
 
 class ForEach(
     private val start: Int,
@@ -11,7 +11,7 @@ class ForEach(
     private val indexName: String,
     private val sourceKeyPath: String,
     private val template: String
-) {
+) : Directive {
     constructor(element: Element) : this(
         element.start,
         element.end,
@@ -20,7 +20,7 @@ class ForEach(
         element.content
     )
 
-    fun compute(source: String, data: Map<String, Any>, scopedData: Map<String, Any> = mapOf()): String {
+    override fun compute(source: String, data: Map<String, Any>, scopedData: Map<String, Any>): String {
         val list = (data.getNestedValue(sourceKeyPath.split("."))
             ?: scopedData.getNestedValue(sourceKeyPath.split("."))) as List<*>
         val repeated = list.filterNotNull().joinToString("") { computeTemplate(template, data, mapOf(indexName to it)) }
@@ -28,7 +28,7 @@ class ForEach(
     }
 
     private fun computeTemplate(template: String, data: Map<String, Any>, scopedData: Map<String, Any>): String {
-        return loop(interpolate(template, data, scopedData), data, scopedData)
+        return looper.transform(interpolate(template, data, scopedData), data, scopedData)
     }
 
 }

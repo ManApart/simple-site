@@ -8,12 +8,12 @@ data class IfNotNull(
     val end: Int,
     private val sourceKeyPath: String,
     val content: String
-) {
+) : Directive{
     constructor(element: Element) : this(element.start, element.end, element.attributes["src"] ?: throw IllegalArgumentException("No Src found!"), element.content)
 
-    fun compute(
+    override fun compute(
         source: String, data: Map<String, Any>,
-        scopedData: Map<String, Any> = mapOf<String, String>()
+        scopedData: Map<String, Any>
     ): String {
         val data = (data.getNestedValue(sourceKeyPath.split("."))
             ?: scopedData.getNestedValue(sourceKeyPath.split(".")))

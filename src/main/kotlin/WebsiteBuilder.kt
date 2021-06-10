@@ -1,11 +1,16 @@
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import directives.ForEach
+import directives.IfNotNull
 import directives.Include
 import directives.Interpolation
 import java.io.File
 
 val mapper = jacksonObjectMapper()
+
+val looper = Transformer("for") { ForEach(it) }
+val includer = Transformer("include") { Include(it) }
+val ifNotNuller = Transformer("ifnotnull") { IfNotNull(it) }
 
 fun main() {
     //src folder should look like: "folderPath": "workspace\\website\\src"
@@ -18,13 +23,15 @@ fun buildSite(sourceFolder: String) {
     val files = parseFiles(sourceFolder)
     val data = parseData(sourceFolder)
 
-    val included = include(files["index.html"]!!, files)
-    val looped = loop(included, data)
-    val interpolated = interpolate(looped, data)
+    val transformed = files["index.html"]!!
+        .convert(includer, files)
+        .convert(looper, data)
+        .convert(ifNotNuller, data)
+        .interpolate(data)
 
     File("$sourceFolder/../out/index.html").also {
         it.parentFile.mkdirs()
-    }.writeText(interpolated)
+    }.writeText(transformed)
 
     val css = File("$sourceFolder/css/").listFiles()!!
         .joinToString("\n") { it.readText() }
@@ -45,16 +52,8 @@ fun parseData(sourceFolder: String): Map<String, Any> {
     }
 }
 
-fun include(input: String, files: Map<String, String>): String {
-    val parser = DomParser("include")
-    var included = input
-    var directive = parser.find(included)
-    while (directive != null) {
-        included = Include(directive).compute(included, files)
-        directive = parser.find(included)
-    }
-
-    return included
+private fun String.interpolate(data: Map<String, Any>): String {
+    return interpolate(this, data)
 }
 
 fun interpolate(input: String, data: Map<String, Any>, scopedData: Map<String, Any> = mapOf()): String {
@@ -66,18 +65,6 @@ fun interpolate(input: String, data: Map<String, Any>, scopedData: Map<String, A
     }
 
     return interpolated
-}
-
-fun loop(input: String, data: Map<String, Any>, scopedData: Map<String, Any> = mapOf()): String {
-    val parser = DomParser("for")
-    var looped = input
-    var directive = parser.find(looped)
-    while (directive != null) {
-        looped = ForEach(directive).compute(looped, data, scopedData)
-        directive = parser.find(looped)
-    }
-
-    return looped
 }
 
 fun getBetween(prefix: String, suffix: String, source: String): String? {
@@ -109,3 +96,8 @@ private fun <K, V> Map<K, V>.getByName(name: String): V? {
     return entries.firstOrNull { it.key == name }?.value
 //    return entries.firstOrNull { it.key == name }?.value value?: throw IllegalArgumentException("No value for $name")
 }
+
+private fun String.convert(transformer: Transformer, data: Map<String, Any>): String {
+    return transformer.transform(this, data)
+}
+
