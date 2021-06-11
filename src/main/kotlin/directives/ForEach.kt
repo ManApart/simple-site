@@ -4,6 +4,7 @@ import Element
 import convert
 import getNestedValue
 import ifNotNuller
+import ifNuller
 import interpolate
 import looper
 
@@ -32,6 +33,7 @@ class ForEach(
     private fun computeTemplate(template: String, data: Map<String, Any>, scopedData: Map<String, Any>): String {
         return interpolate(template, data, scopedData)
             .convert(looper, data, scopedData)
+            .convert(ifNuller, data, scopedData)
             .convert(ifNotNuller, data, scopedData)
 //        return looper.transform(interpolate(template, data, scopedData), data, scopedData)
     }

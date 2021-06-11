@@ -1,16 +1,14 @@
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import directives.ForEach
-import directives.IfNotNull
-import directives.Include
-import directives.Interpolation
+import directives.*
 import java.io.File
 
 val mapper = jacksonObjectMapper()
 
 val looper = Transformer("for") { ForEach(it) }
 val includer = Transformer("include") { Include(it) }
-val ifNotNuller = Transformer("ifnotnull") { IfNotNull(it) }
+val ifNotNuller = Transformer("ifnotnull") { IfNull(it, false) }
+val ifNuller = Transformer("ifnull") { IfNull(it, true) }
 
 fun main() {
     //src folder should look like: "folderPath": "workspace\\website\\src"
@@ -26,6 +24,7 @@ fun buildSite(sourceFolder: String) {
     val transformed = files["index.html"]!!
         .convert(includer, files)
         .convert(looper, data)
+        .convert(ifNuller, data)
         .convert(ifNotNuller, data)
         .interpolate(data)
 
