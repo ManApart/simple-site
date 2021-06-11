@@ -94,4 +94,13 @@ class DomParserTest {
         }
     }
 
+    @Test
+    fun falsePositiveNoEnd() {
+        val source = "<div>Parent<div>a</div><div>b</div></div>"
+        val parser = DomParser("div")
+        val actual = parser.find(source)
+
+        val expected = "Parent<div>a</div><div>b</div>"
+        assertEquals(expected, actual?.content)
+    }
 }
