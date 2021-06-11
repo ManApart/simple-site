@@ -1,6 +1,9 @@
 # Simple Site
 
+[![Build and Test](https://github.com/ManApart/simple-site/actions/workflows/runTests.yml/badge.svg)](https://github.com/ManApart/simple-site/actions/workflows/runTests.yml)
+
 Slightly extend html in order to build sites that don't require javascript.
+
 
 WebsiteBuilder builds your files.
 
