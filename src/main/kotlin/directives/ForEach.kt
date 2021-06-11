@@ -35,7 +35,6 @@ class ForEach(
             .convert(looper, data, scopedData)
             .convert(ifNuller, data, scopedData)
             .convert(ifNotNuller, data, scopedData)
-//        return looper.transform(interpolate(template, data, scopedData), data, scopedData)
     }
 
 }
