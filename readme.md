@@ -1,4 +1,4 @@
-# Simple Site
+# Origami
 
 [![Build and Test](https://github.com/ManApart/simple-site/actions/workflows/runTests.yml/badge.svg)](https://github.com/ManApart/simple-site/actions/workflows/runTests.yml)
 

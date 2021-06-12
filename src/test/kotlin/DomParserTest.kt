@@ -1,7 +1,6 @@
 import directives.Delete
 import directives.ForEach
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -89,13 +88,25 @@ class DomParserTest {
         val source = "<div>Looped<div>Inner Loop</div>"
         val parser = DomParser("div")
 
-        assertThrows<Exception> {
+        val error = assertThrows<Exception> {
             parser.find(source)
         }
+        assertEquals("div has no proper end!", error.message)
     }
 
     @Test
-    fun falsePositiveNoEnd() {
+    fun startsWithEnd() {
+        val source = "</div><div>Looped<div>Inner Loop</div>"
+        val parser = DomParser("div")
+
+        val error = assertThrows<Exception> {
+            parser.find(source)
+        }
+        assertEquals("div started with closing tag!", error.message)
+    }
+
+    @Test
+    fun parentWithSiblings() {
         val source = "<div>Parent<div>a</div><div>b</div></div>"
         val parser = DomParser("div")
         val actual = parser.find(source)
@@ -103,4 +114,5 @@ class DomParserTest {
         val expected = "Parent<div>a</div><div>b</div>"
         assertEquals(expected, actual?.content)
     }
+
 }

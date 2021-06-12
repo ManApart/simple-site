@@ -3,9 +3,14 @@ class DomParser(private val name: String) {
         val prefix = "<$name"
         val suffix = "</$name>"
         val start = source.indexOf(prefix)
+        val firstEnd = source.indexOf(suffix)
         val tagEnd = source.indexOf(">", start)
         val nextStart = source.indexOf(prefix, start + 1)
         val selfClosing = (getChar(source, tagEnd - 1) == '/' && (nextStart == -1 || nextStart > tagEnd))
+
+        if (firstEnd != -1 && firstEnd < start){
+            throw Exception("$name started with closing tag!")
+        }
 
         return if (selfClosing) {
             findSelfClosingElement(start, tagEnd, source, prefix)
@@ -53,7 +58,9 @@ class DomParser(private val name: String) {
         val end = findEnd(start, source, suffix, prefix)
 
         when {
-            start != -1 && end == -1 -> throw Exception("$name has no proper end!")
+            start != -1 && end == -1 -> {
+                throw Exception("$name has no proper end!")
+            }
             (start == -1 || end < start) -> return null
         }
         val tag = source.substring(start + prefix.length, tagEnd)
