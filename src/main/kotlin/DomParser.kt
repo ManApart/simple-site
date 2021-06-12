@@ -79,35 +79,17 @@ class DomParser(private val name: String) {
     ): Int {
         var end = source.indexOf(suffix, start)
         var nextStart = source.indexOf(prefix, start + 1)
-//        var nestCount = if (nextStart != -1 && nextStart < end) 1 else 0
 
-        if (nextStart == -1 || nextStart >= end){
-            return end
-        }
+        if (nextStart == -1 || nextStart >= end) return end
 
         var nestCount = 0
-        var startPreview = source.previewNext(nextStart, prefix)
-        var endPreview = source.previewPrevious(end)
-
         do {
             nextStart = source.indexOf(prefix, nextStart + 1)
             end = source.indexOf(suffix, end + 1)
-
-            startPreview = source.previewNext(nextStart, prefix)
-            endPreview = source.previewPrevious(end)
-
             if (nextStart < end) nestCount++ else nestCount--
+
         } while (nestCount > 0 && nextStart != -1)
 
-//        while (nestCount > 0 && nextStart != -1) {
-//            nextStart = source.indexOf(prefix, nextStart + 1)
-//            end = source.indexOf(suffix, end + 1)
-//
-//            startPreview = source.previewNext(nextStart, prefix)
-//            endPreview = source.previewPrevious(end)
-//
-//            if (nextStart < end) nestCount++ else nestCount--
-//        }
         return end
     }
 
@@ -122,7 +104,7 @@ class DomParser(private val name: String) {
     }
 
     private fun String.previewPrevious(end: Int): String {
-        val start = kotlin.math.max(0, end-4)
+        val start = kotlin.math.max(0, end - 4)
         return if (start > -1 && end != -1 && start < end) {
             this.substring(start, end)
         } else {

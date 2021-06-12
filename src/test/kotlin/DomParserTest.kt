@@ -130,7 +130,11 @@ class DomParserTest {
         val parser = DomParser("for")
         val actual = parser.find(source)
 
-        assertFalse(actual?.content?.contains("Nope</for>") ?: true)
+        assertNotNull(actual)
+        if (actual != null) {
+            assertTrue(actual.content.contains("Nope"))
+            assertFalse(actual.content.contains("Nope</for>"))
+        }
     }
 
 }
