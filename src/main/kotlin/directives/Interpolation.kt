@@ -1,7 +1,6 @@
 package directives
 
 import Context
-import getNestedValue
 
 class Interpolation(
     val start: Int,
@@ -14,21 +13,12 @@ class Interpolation(
         context: Context
     ): String {
         val parts = keyPath.split(".")
-        val newValue = getValue(context.data, parts, context.scopedData)
+        val newValue = context.getValue(parts)?.toString()
         return if (newValue != null) {
             source.substring(0, start) + newValue + source.substring(end, source.length)
         } else {
             source
         }
-    }
-
-    private fun getValue(
-        data: Map<String, Any>,
-        parts: List<String>,
-        scopedData: Map<String, Any>
-    ): String? {
-        return data.getNestedValue(parts)?.toString()
-            ?: scopedData.getNestedValue(parts)?.toString()
     }
 
     companion object {
@@ -51,4 +41,15 @@ class Interpolation(
             }
         }
     }
+}
+
+fun String.interpolate(context: Context): String {
+    var interpolated = this
+    var directive = Interpolation.find(interpolated)
+    while (directive != null) {
+        interpolated = directive.compute(interpolated, context)
+        directive = Interpolation.find(interpolated, directive.end)
+    }
+
+    return interpolated
 }

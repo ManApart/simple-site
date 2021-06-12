@@ -34,14 +34,6 @@ fun buildSite(sourceFolder: String) {
 
 }
 
-fun transformHtml(source: String, context: Context): String {
-    return source.convert(includer, context)
-        .convert(looper, context)
-        .convert(ifNuller, context)
-        .convert(ifNotNuller, context)
-        .interpolate(context)
-}
-
 fun parseFiles(sourceFolder: String): Map<String, String> {
     return File(sourceFolder).listFiles()!!.filter { it.isFile }.associate {
         it.name to it.readText()
@@ -54,37 +46,17 @@ fun parseData(sourceFolder: String): Map<String, Any> {
     }
 }
 
+fun transformHtml(source: String, context: Context): String {
+    return source.convert(includer, context)
+        .convert(looper, context)
+        .convert(ifNuller, context)
+        .convert(ifNotNuller, context)
+        .interpolate(context)
+}
+
 fun String.convert(transformer: Transformer, context: Context): String {
     return transformer.transform(this, context)
 }
 
-fun String.interpolate(context: Context): String {
-    var interpolated = this
-    var directive = Interpolation.find(interpolated)
-    while (directive != null) {
-        interpolated = directive.compute(interpolated, context)
-        directive = Interpolation.find(interpolated, directive.end)
-    }
 
-    return interpolated
-}
-
-fun <K, V> Map<K, V>.getNestedValue(keys: List<String>): Any? {
-    return if (keys.size == 1) {
-        getByName(keys.first())
-    } else {
-        val newMap = getByName(keys.first())
-        if (newMap is List<*>) {
-            throw IllegalStateException("Can't handle arrays: $newMap")
-        } else if (newMap == null) {
-            return null
-        }
-        (newMap as Map<String, Any>).getNestedValue(keys.subList(1, keys.size))
-    }
-}
-
-private fun <K, V> Map<K, V>.getByName(name: String): V? {
-    return entries.firstOrNull { it.key == name }?.value
-//    return entries.firstOrNull { it.key == name }?.value value?: throw IllegalArgumentException("No value for $name")
-}
 

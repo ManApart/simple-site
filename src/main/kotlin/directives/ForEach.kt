@@ -2,12 +2,6 @@ package directives
 
 import Context
 import Element
-import convert
-import getNestedValue
-import ifNotNuller
-import ifNuller
-import interpolate
-import looper
 import transformHtml
 
 class ForEach(
@@ -26,8 +20,7 @@ class ForEach(
     )
 
     override fun compute(source: String, context: Context): String {
-        val list = (context.data.getNestedValue(sourceKeyPath.split("."))
-            ?: context.scopedData.getNestedValue(sourceKeyPath.split("."))) as List<*>
+        val list = context.getValue(sourceKeyPath) as List<*>
 
         val repeated = list.filterNotNull().joinToString("") {
             val newContext = context.copy(scopedData = mapOf(indexName to it))
