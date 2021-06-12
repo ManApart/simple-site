@@ -1,5 +1,6 @@
 package directives
 
+import Context
 import Element
 import getNestedValue
 
@@ -12,12 +13,9 @@ data class IfNull(
 ) : Directive{
     constructor(element: Element, lookingForNull: Boolean) : this(element.start, element.end, element.attributes["src"] ?: throw IllegalArgumentException("No Src found!"), element.content, lookingForNull)
 
-    override fun compute(
-        source: String, data: Map<String, Any>,
-        scopedData: Map<String, Any>
-    ): String {
-        val data = (data.getNestedValue(sourceKeyPath.split("."))
-            ?: scopedData.getNestedValue(sourceKeyPath.split(".")))
+    override fun compute(        source: String, context: Context    ): String {
+        val data = (context.data.getNestedValue(sourceKeyPath.split("."))
+            ?: context.scopedData.getNestedValue(sourceKeyPath.split(".")))
 
         val replacement = when{
             lookingForNull && data == null -> content

@@ -1,5 +1,6 @@
 package directives
 
+import Context
 import getNestedValue
 
 class Interpolation(
@@ -10,11 +11,10 @@ class Interpolation(
 
     fun compute(
         source: String,
-        data: Map<String, Any>,
-        scopedData: Map<String, Any> = mapOf<String, String>()
+        context: Context
     ): String {
         val parts = keyPath.split(".")
-        val newValue = getValue(data, parts, scopedData)
+        val newValue = getValue(context.data, parts, context.scopedData)
         return if (newValue != null) {
             source.substring(0, start) + newValue + source.substring(end, source.length)
         } else {

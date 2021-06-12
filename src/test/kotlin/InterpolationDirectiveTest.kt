@@ -59,7 +59,7 @@ class InterpolationDirectiveTest {
             )
         )
         val interpolation = Interpolation(0, source.length, "cat.name")
-        val actual = interpolation.compute(source, data)
+        val actual = interpolation.compute(source, Context(data))
         assertEquals("smudge", actual)
     }
 
@@ -74,7 +74,7 @@ class InterpolationDirectiveTest {
             )
         )
         val interpolation = Interpolation(0, source.length, "cat.owner.name")
-        val actual = interpolation.compute(source, data)
+        val actual = interpolation.compute(source, Context(data))
         assertEquals("smudge", actual)
     }
 
@@ -90,7 +90,7 @@ class InterpolationDirectiveTest {
         )
         val interpolation = Interpolation(0, source.length, "cat.owner.name")
         assertThrows<IllegalStateException> {
-            interpolation.compute(source, data)
+            interpolation.compute(source, Context(data))
         }
     }
 
@@ -108,7 +108,7 @@ class InterpolationDirectiveTest {
             )
         )
         val interpolation = Interpolation(0, source.length, "pet.name")
-        val actual = interpolation.compute(source, data, scopedData)
+        val actual = interpolation.compute(source, Context(data, scopedData = scopedData))
         assertEquals("gus", actual)
     }
 
@@ -124,7 +124,7 @@ class InterpolationDirectiveTest {
             "pet" to "frank"
         )
         val interpolation = Interpolation(0, source.length, "pet")
-        val actual = interpolation.compute(source, data, scopedData)
+        val actual = interpolation.compute(source, Context(data, scopedData = scopedData))
         assertEquals("frank", actual)
     }
 
@@ -132,14 +132,14 @@ class InterpolationDirectiveTest {
     fun ignoreValuesWeDontKnowYet() {
         val source = "{{cat.name}}"
         val interpolation = Interpolation(0, source.length, "cat.name")
-        val actual = interpolation.compute(source, mapOf())
+        val actual = interpolation.compute(source, Context(mapOf()))
         assertEquals("{{cat.name}}", actual)
     }
 
     @Test
     fun findDoesNotInfiniteLoop() {
         val source = "{{cat.name}}{{builder.tool}}"
-        val actual = interpolate(source, mapOf())
+        val actual = source.interpolate(Context(mapOf()))
         assertEquals("{{cat.name}}{{builder.tool}}", actual)
     }
 

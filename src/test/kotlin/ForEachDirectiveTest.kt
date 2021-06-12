@@ -14,7 +14,7 @@ class ForEachDirectiveTest {
                 mapOf("name" to "Ollie")
             )
         )
-        val actual = directive.compute(source, data)
+        val actual = directive.compute(source, Context(data))
         val expected = "LoopedLooped"
         assertEquals(expected, actual)
     }
@@ -29,7 +29,7 @@ class ForEachDirectiveTest {
             )
         )
         val parser = DomParser("for")
-        val actual = ForEach(parser.find(source)!!).compute(source, data)
+        val actual = ForEach(parser.find(source)!!).compute(source, Context(data))
         val expected = "LoopedInner LoopInner LoopLoopedInner LoopInner Loop"
         assertEquals(expected, actual)
     }
@@ -44,7 +44,7 @@ class ForEachDirectiveTest {
             )
         )
         val parser = DomParser("for")
-        val actual = ForEach(parser.find(source)!!).compute(source, data)
+        val actual = ForEach(parser.find(source)!!).compute(source, Context(data))
         val expected = "SmudgechewymouseOlliebone"
         assertEquals(expected, actual)
     }
@@ -59,7 +59,7 @@ class ForEachDirectiveTest {
                 mapOf("name" to "Ollie")
             )
         )
-        val actual = directive.compute(source, data)
+        val actual = directive.compute(source, Context(data))
         val expected = "Smudge Ollie "
         assertEquals(expected, actual)
     }
@@ -71,7 +71,7 @@ class ForEachDirectiveTest {
         val data = mapOf(
             "names" to listOf("Smudge", "Ollie")
         )
-        val actual = directive.compute(source, data)
+        val actual = directive.compute(source, Context(data))
         val expected = "SmudgeOllie"
         assertEquals(expected, actual)
     }
@@ -86,7 +86,7 @@ class ForEachDirectiveTest {
                 mapOf("name" to "Ollie")
             )
         )
-        val actual = directive.compute(source, data)
+        val actual = directive.compute(source, Context(data))
         val expected = "HereHere"
         assertEquals(expected, actual)
     }
@@ -101,7 +101,7 @@ class ForEachDirectiveTest {
                 mapOf("name" to "Ollie")
             )
         )
-        val actual = directive.compute(source, data)
+        val actual = directive.compute(source, Context(data))
         val expected = "BobBob"
         assertEquals(expected, actual)
     }

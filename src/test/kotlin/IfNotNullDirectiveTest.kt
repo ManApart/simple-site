@@ -11,7 +11,7 @@ class IfNotNullDirectiveTest {
         val data = mapOf(
             "pets" to "notnull"
         )
-        val actual = directive.compute(source, data)
+        val actual = directive.compute(source, Context(data))
         val expected = "content"
         assertEquals(expected, actual)
     }
@@ -21,7 +21,7 @@ class IfNotNullDirectiveTest {
         val source = "<ifnotnull src=\"pets\">content</ifnotnull>"
         val directive = IfNull(0, source.length, "pets", "content", false)
         val data = mapOf<String, Any>()
-        val actual = directive.compute(source, data)
+        val actual = directive.compute(source, Context(data))
         val expected = ""
         assertEquals(expected, actual)
     }
@@ -33,7 +33,7 @@ class IfNotNullDirectiveTest {
         val data = mapOf(
             "pets" to "notnull"
         )
-        val actual = directive.compute(source, data)
+        val actual = directive.compute(source, Context(data))
         val expected = ""
         assertEquals(expected, actual)
     }
@@ -43,7 +43,7 @@ class IfNotNullDirectiveTest {
         val source = "<ifnull src=\"pets\">content</ifnull>"
         val directive = IfNull(0, source.length, "pets", "content", true)
         val data = mapOf<String, Any>()
-        val actual = directive.compute(source, data)
+        val actual = directive.compute(source, Context(data))
 
         val expected = "content"
         assertEquals(expected, actual)

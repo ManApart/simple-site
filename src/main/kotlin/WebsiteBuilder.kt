@@ -21,12 +21,7 @@ fun buildSite(sourceFolder: String) {
     val files = parseFiles(sourceFolder)
     val data = parseData(sourceFolder)
 
-    val transformed = files["index.html"]!!
-        .convert(includer, files)
-        .convert(looper, data)
-        .convert(ifNuller, data)
-        .convert(ifNotNuller, data)
-        .interpolate(data)
+    val transformed = transformHtml(files["index.html"]!!, Context(data, files, mapOf()))
 
     File("$sourceFolder/../out/index.html").also {
         it.parentFile.mkdirs()
@@ -37,6 +32,14 @@ fun buildSite(sourceFolder: String) {
 
     File("$sourceFolder/../out/styles.css").writeText(css)
 
+}
+
+fun transformHtml(source: String, context: Context): String {
+    return source.convert(includer, context)
+        .convert(looper, context)
+        .convert(ifNuller, context)
+        .convert(ifNotNuller, context)
+        .interpolate(context)
 }
 
 fun parseFiles(sourceFolder: String): Map<String, String> {
@@ -51,19 +54,15 @@ fun parseData(sourceFolder: String): Map<String, Any> {
     }
 }
 
-fun String.convert(transformer: Transformer, data: Map<String, Any>, scopedData: Map<String, Any> = mapOf()): String {
-    return transformer.transform(this, data, scopedData)
+fun String.convert(transformer: Transformer, context: Context): String {
+    return transformer.transform(this, context)
 }
 
-fun String.interpolate(data: Map<String, Any>): String {
-    return interpolate(this, data)
-}
-
-fun interpolate(input: String, data: Map<String, Any>, scopedData: Map<String, Any> = mapOf()): String {
-    var interpolated = input
+fun String.interpolate(context: Context): String {
+    var interpolated = this
     var directive = Interpolation.find(interpolated)
     while (directive != null) {
-        interpolated = directive.compute(interpolated, data, scopedData)
+        interpolated = directive.compute(interpolated, context)
         directive = Interpolation.find(interpolated, directive.end)
     }
 
