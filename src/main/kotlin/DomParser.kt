@@ -8,7 +8,7 @@ class DomParser(private val name: String) {
         val nextStart = source.indexOf(prefix, start + 1)
         val selfClosing = (getChar(source, tagEnd - 1) == '/' && (nextStart == -1 || nextStart > tagEnd))
 
-        if (firstEnd != -1 && firstEnd < start){
+        if (firstEnd != -1 && firstEnd < start) {
             throw Exception("$name started with closing tag!")
         }
 
@@ -79,13 +79,55 @@ class DomParser(private val name: String) {
     ): Int {
         var end = source.indexOf(suffix, start)
         var nextStart = source.indexOf(prefix, start + 1)
-        var nestCount = if (nextStart != -1 && nextStart < end) 1 else 0
+//        var nestCount = if (nextStart != -1 && nextStart < end) 1 else 0
 
-        while (nestCount > 0 && nextStart != -1) {
+        if (nextStart == -1 || nextStart >= end){
+            return end
+        }
+
+        var nestCount = 0
+        var startPreview = source.previewNext(nextStart, prefix)
+        var endPreview = source.previewPrevious(end)
+
+        do {
             nextStart = source.indexOf(prefix, nextStart + 1)
             end = source.indexOf(suffix, end + 1)
+
+            startPreview = source.previewNext(nextStart, prefix)
+            endPreview = source.previewPrevious(end)
+
             if (nextStart < end) nestCount++ else nestCount--
-        }
+        } while (nestCount > 0 && nextStart != -1)
+
+//        while (nestCount > 0 && nextStart != -1) {
+//            nextStart = source.indexOf(prefix, nextStart + 1)
+//            end = source.indexOf(suffix, end + 1)
+//
+//            startPreview = source.previewNext(nextStart, prefix)
+//            endPreview = source.previewPrevious(end)
+//
+//            if (nextStart < end) nestCount++ else nestCount--
+//        }
         return end
     }
+
+    private fun String.previewNext(start: Int, searchTerm: String): String {
+        val start = start + searchTerm.length + 1
+        val end = kotlin.math.min(start + 4, this.length)
+        return if (start != -1 && start < end) {
+            this.substring(start, end)
+        } else {
+            ""
+        }
+    }
+
+    private fun String.previewPrevious(end: Int): String {
+        val start = kotlin.math.max(0, end-4)
+        return if (start > -1 && end != -1 && start < end) {
+            this.substring(start, end)
+        } else {
+            ""
+        }
+    }
+
 }

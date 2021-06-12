@@ -115,4 +115,22 @@ class DomParserTest {
         assertEquals(expected, actual?.content)
     }
 
+    @Test
+    fun comboNestedErrorCase() {
+        val source = """
+    <for>
+        <for>a</for>
+        <for>b</for>
+    Nope</for>
+    <for>
+        <for>c</for>
+        <for>d</for>
+    </for>
+        """.trimIndent()
+        val parser = DomParser("for")
+        val actual = parser.find(source)
+
+        assertFalse(actual?.content?.contains("Nope</for>") ?: true)
+    }
+
 }
