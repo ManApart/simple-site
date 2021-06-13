@@ -144,4 +144,17 @@ class InterpolationDirectiveTest {
         assertEquals("{{cat.name}}{{builder.tool}}", actual)
     }
 
+    @Test
+    fun shrinkingStartingPlace() {
+        val source = "{{cat.bigLongSuperName}}{{cat.age}}"
+        val data = mapOf<String, Any>(
+            "cat" to mapOf<String, Any>(
+                "bigLongSuperName" to "smudge",
+                "age" to 1
+            )
+        )
+        val actual = source.interpolate(Context(data))
+        assertEquals("smudge1", actual)
+    }
+
 }

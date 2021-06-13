@@ -29,7 +29,9 @@ class Interpolation(
             val end = source.indexOf(suffix, searchStart)
             return when {
                 start != -1 && end == -1 -> throw Exception("Include has no proper end!")
-                (start == -1 || end <= start) -> null
+                (start == -1 || end <= start) -> {
+                    null
+                }
                 else -> {
                     val inner = source.substring(start + prefix.length, end)
                     if (inner.isBlank()) {
@@ -48,7 +50,7 @@ fun String.interpolate(context: Context): String {
     var directive = Interpolation.find(interpolated)
     while (directive != null) {
         interpolated = directive.compute(interpolated, context)
-        directive = Interpolation.find(interpolated, directive.end)
+        directive = Interpolation.find(interpolated, directive.start+1)
     }
 
     return interpolated
