@@ -1,8 +1,9 @@
-import directives.Delete
-import directives.ForEach
+import simpleSite.directives.Delete
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import simpleSite.DomParser
+import simpleSite.Element
 
 class DomParserTest {
 

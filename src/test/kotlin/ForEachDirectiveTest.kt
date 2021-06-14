@@ -1,6 +1,8 @@
-import directives.ForEach
+import simpleSite.directives.ForEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import simpleSite.Context
+import simpleSite.DomParser
 
 class ForEachDirectiveTest {
 

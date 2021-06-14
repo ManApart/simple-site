@@ -1,6 +1,7 @@
-import directives.IfNull
+import simpleSite.directives.IfNull
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import simpleSite.Context
 
 class IfNotNullDirectiveTest {
 
