@@ -4,22 +4,21 @@ import java.io.File
 import java.nio.file.FileSystems
 import java.nio.file.StandardWatchEventKinds
 
-fun main() {
-    val folderPath = readConfig()["folderPath"]!! as String
-    val pathToWatch = File(folderPath).toPath()
-    val cssPath = File(folderPath + "/css").toPath()
+fun watch(path: String, secondPath: String, builder: (String) -> Unit) {
+    val pathToWatch = File(path).toPath()
+    val pathToWatch2 = File(secondPath).toPath()
     val watchService = FileSystems.getDefault().newWatchService()
 
     val pathKey = pathToWatch.register(
         watchService, StandardWatchEventKinds.ENTRY_CREATE,
         StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE
     )
-    val pathKeyCss = cssPath.register(
+    val pathKey2 = pathToWatch2.register(
         watchService, StandardWatchEventKinds.ENTRY_CREATE,
         StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE
     )
 
-    buildSite(folderPath)
+    builder(path)
     var lastBuild = System.currentTimeMillis()
     while (true) {
         val watchKey = watchService.take()
@@ -28,7 +27,7 @@ fun main() {
             if (System.currentTimeMillis() > lastBuild + 500) {
                 Thread.sleep(100)
                 try {
-                    buildSite(folderPath)
+                    builder(path)
                 } catch (ex: Exception) {
                     println(ex.message)
                 }
@@ -45,5 +44,5 @@ fun main() {
     }
 
     pathKey.cancel()
-    pathKeyCss.cancel()
+    pathKey2.cancel()
 }
