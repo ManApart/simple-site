@@ -8,9 +8,13 @@ import java.io.File
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
+/**
+ * TODO
+ * - set up self links for each entry
+ */
 
 fun main() {
-    //src folder should look like: "blogPath": "workspace\\website\\src"
+    //src folder should look like: "blogPath": "workspace\\website"
     val folderPath = readConfig()["blogPath"]!! as String
     buildBlog(folderPath)
 }
@@ -18,15 +22,19 @@ fun main() {
 fun buildBlog(sourceFolder: String) {
     val files = parseFiles("$sourceFolder/blogs/")
 
-    val transformed = process(files)
+    val processed = process(files)
 
-    File("$sourceFolder/out/index.html").also {
-        it.parentFile.mkdirs()
-    }.writeText(transformed)
+    //Write individual entries
+    processed.forEach { entry ->
+        writeFile(sourceFolder, entry.name, entry.html)
+    }
+
+    //write a page for all entries
+    writeFile(sourceFolder, "index", processed.joinToString("\n") { it.html })
 
     val css = File("$sourceFolder/styles.css").readText()
 
-    File("$sourceFolder/out/styles.css").writeText(css)
+    File("$sourceFolder/out/assets/css/styles.css").writeText(css)
 
 }
 
@@ -36,20 +44,25 @@ fun parseFiles(sourceFolder: String): Map<String, String> {
     }
 }
 
-fun process(files: Map<String, String>): String {
+fun process(files: Map<String, String>): List<Entry> {
     val flavour = CommonMarkFlavourDescriptor()
 
-    val contents = files.values
+    return files.values
         .map { processSingleFile(it, flavour) }
         .sortedByDescending { it.date }
-        .joinToString("\n") { it.html }
+}
 
-    return """
+fun writeFile(sourceFolder: String, fileName: String, contents: String) {
+    val text = """
         <body>
             <link href="assets/css/styles.css" rel="stylesheet">
             $contents
         </body>
     """.trimIndent()
+
+    File("$sourceFolder/out/$fileName.html").also {
+        it.parentFile.mkdirs()
+    }.writeText(text)
 }
 
 private fun processSingleFile(fileText: String, flavour: CommonMarkFlavourDescriptor): Entry {
@@ -58,8 +71,14 @@ private fun processSingleFile(fileText: String, flavour: CommonMarkFlavourDescri
         .replace("<body>", "")
         .replace("</body>", "")
         .replace("\n", "<br/>")
-    val dateText = fileText.split("\n")[2].trim()
+
+    val lines = fileText.split("\n")
+    val name = lines[0]
+        .replace("#", "")
+        .trim()
+        .replace(" ", "-")
+    val dateText = lines[2].trim()
     val date = LocalDate.parse(dateText!!, DateTimeFormatter.ofPattern("M-dd-yyyy"))
-    return Entry(date, fileText, html)
+    return Entry(name, date, fileText, html)
 }
 
