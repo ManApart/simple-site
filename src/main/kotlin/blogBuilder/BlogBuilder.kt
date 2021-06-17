@@ -8,33 +8,33 @@ import java.io.File
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-/**
- * TODO
- * - set up self links for each entry
- */
-
 fun main() {
     //src folder should look like: "blogPath": "workspace\\website"
-    val folderPath = readConfig()["blogPath"]!! as String
-    buildBlog(folderPath)
+    //blog path look like: "blogPath": "blog"
+    val config = readConfig()
+    val folderPath = config["blogPath"]!! as String
+    val subPath = config["blogSubPath"]!! as String
+    buildBlog(folderPath, subPath)
 }
 
-fun buildBlog(sourceFolder: String) {
+fun buildBlog(sourceFolder: String, subPath: String) {
     val files = parseFiles("$sourceFolder/blogs/")
 
-    val processed = process(files)
+    val processed = process(files, subPath)
 
     //Write individual entries
     processed.forEach { entry ->
-        writeFile(sourceFolder, entry.name, entry.html)
+        writeFile(sourceFolder, subPath, entry.name, entry.html)
     }
 
     //write a page for all entries
-    writeFile(sourceFolder, "index", processed.joinToString("\n") { it.html })
+    writeFile(sourceFolder, subPath, "index", processed.joinToString("\n") { it.html })
 
     val css = File("$sourceFolder/styles.css").readText()
 
-    File("$sourceFolder/out/assets/css/styles.css").writeText(css)
+    File("$sourceFolder/out/$subPath/assets/css/styles.css").also {
+        it.parentFile.mkdirs()
+    }.writeText(css)
 
 }
 
@@ -44,41 +44,45 @@ fun parseFiles(sourceFolder: String): Map<String, String> {
     }
 }
 
-fun process(files: Map<String, String>): List<Entry> {
+fun process(files: Map<String, String>, subPath: String): List<Entry> {
     val flavour = CommonMarkFlavourDescriptor()
 
     return files.values
-        .map { processSingleFile(it, flavour) }
+        .map { processSingleFile(it, subPath, flavour) }
         .sortedByDescending { it.date }
 }
 
-fun writeFile(sourceFolder: String, fileName: String, contents: String) {
-    val text = """
-        <body>
-            <link href="assets/css/styles.css" rel="stylesheet">
-            $contents
-        </body>
-    """.trimIndent()
-
-    File("$sourceFolder/out/$fileName.html").also {
-        it.parentFile.mkdirs()
-    }.writeText(text)
-}
-
-private fun processSingleFile(fileText: String, flavour: CommonMarkFlavourDescriptor): Entry {
-    val parsedTree = MarkdownParser(flavour).buildMarkdownTreeFromString(fileText)
-    val html = HtmlGenerator(fileText, parsedTree, flavour).generateHtml()
-        .replace("<body>", "")
-        .replace("</body>", "")
-        .replace("\n", "<br/>")
-
+private fun processSingleFile(fileText: String, subPath: String, flavour: CommonMarkFlavourDescriptor): Entry {
     val lines = fileText.split("\n")
     val name = lines[0]
         .replace("#", "")
         .trim()
-        .replace(" ", "-")
+    val cleanedName = name.replace(" ", "-")
+
+    val titleLine = "# [$name](/$subPath/$cleanedName.html)"
+    val toParse = (listOf(titleLine) + lines.subList(1, lines.size)).joinToString("\n")
+
+    val parsedTree = MarkdownParser(flavour).buildMarkdownTreeFromString(toParse)
+    val html = HtmlGenerator(toParse, parsedTree, flavour).generateHtml()
+        .replace("<body>", "")
+        .replace("</body>", "")
+        .replace("\n", "<br/>")
+
+
     val dateText = lines[2].trim()
     val date = LocalDate.parse(dateText!!, DateTimeFormatter.ofPattern("M-dd-yyyy"))
-    return Entry(name, date, fileText, html)
+    return Entry(cleanedName, date, fileText, html)
 }
 
+fun writeFile(sourceFolder: String, subPath: String, fileName: String, contents: String) {
+    val text = """
+        <body>
+            <link href="/$subPath/assets/css/styles.css" rel="stylesheet">
+            $contents
+        </body>
+    """.trimIndent()
+
+    File("$sourceFolder/out/$subPath/$fileName.html").also {
+        it.parentFile.mkdirs()
+    }.writeText(text)
+}

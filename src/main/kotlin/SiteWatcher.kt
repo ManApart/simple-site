@@ -4,7 +4,7 @@ import java.io.File
 import java.nio.file.FileSystems
 import java.nio.file.StandardWatchEventKinds
 
-fun watch(path: String, secondPath: String, builder: (String) -> Unit) {
+fun watch(path: String, secondPath: String, builder: () -> Unit) {
     val pathToWatch = File(path).toPath()
     val pathToWatch2 = File(secondPath).toPath()
     val watchService = FileSystems.getDefault().newWatchService()
@@ -18,7 +18,7 @@ fun watch(path: String, secondPath: String, builder: (String) -> Unit) {
         StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE
     )
 
-    builder(path)
+    builder()
     var lastBuild = System.currentTimeMillis()
     while (true) {
         val watchKey = watchService.take()
@@ -27,7 +27,7 @@ fun watch(path: String, secondPath: String, builder: (String) -> Unit) {
             if (System.currentTimeMillis() > lastBuild + 500) {
                 Thread.sleep(100)
                 try {
-                    builder(path)
+                    builder()
                 } catch (ex: Exception) {
                     println(ex.message)
                 }

@@ -1,12 +1,13 @@
 package simpleSite.blogBuilder
 
 import blogBuilder.buildBlog
-import simpleSite.buildSite
 import simpleSite.readConfig
 import simpleSite.watch
-import java.io.File
 
 fun main() {
-    val folderPath = readConfig()["blogPath"]!! as String
-    watch(folderPath, "$folderPath/blogs", ::buildBlog)
+    val config = readConfig()
+    val folderPath = config["blogPath"]!! as String
+    val subPath = config["blogSubPath"]!! as String
+
+    watch(folderPath, "$folderPath/blogs") { buildBlog(folderPath, subPath) }
 }
