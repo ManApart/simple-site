@@ -39,7 +39,8 @@ In the site's config, create something like:
 {
   "blogs": "blog",
   "tabTitle": "Home",
-  "toc": true
+  "toc": false,
+  "tocTitle": "Table of Contents"
 }
 ```
 

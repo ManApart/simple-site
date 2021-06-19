@@ -3,6 +3,7 @@ package blogBuilder
 import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
 import org.intellij.markdown.html.HtmlGenerator
 import org.intellij.markdown.parser.MarkdownParser
+import simpleSite.blogBuilder.SiteConfig
 import simpleSite.readSiteConfig
 import java.io.File
 import java.time.LocalDate
@@ -10,30 +11,26 @@ import java.time.format.DateTimeFormatter
 
 fun main() {
     val config = readSiteConfig()
-    val folderPath = config["folderPath"]!! as String
-    val subPath = config["blogs"]!! as String
-    val tabTitle = config["tabTitle"]!! as String
-    val includeTOC = config["toc"] as Boolean? ?: false
-    buildBlog(folderPath, subPath, tabTitle, includeTOC)
+    buildBlog(config)
 }
 
-fun buildBlog(sourceFolder: String, subPath: String, tabTitle: String, includeTOC: Boolean) {
-    val files = parseFiles("$sourceFolder/$subPath/")
+fun buildBlog(config: SiteConfig) {
+    val files = parseFiles("${config.sourceFolder}/${config.blogs}/")
 
-    val processed = process(files, subPath)
+    val processed = process(files, config.blogs)
 
     //Write individual entries
     processed.forEach { entry ->
-        writeFile(sourceFolder, subPath, entry.name, entry.html, entry.name.replace("-", " "))
+        writeFile(config.sourceFolder, config.blogs, entry.name, entry.html, entry.name.replace("-", " "))
     }
 
     //write a page for all entries
-    val content = prepFullFile(processed, includeTOC)
-    writeFile(sourceFolder, subPath, "index", content, tabTitle)
+    val content = prepFullFile(processed, config.toc, config.tocTitle)
+    writeFile(config.sourceFolder, config.blogs, "index", content, config.tabTitle)
 
-    val css = File("$sourceFolder/styles.css").readText()
+    val css = File("${config.sourceFolder}/styles.css").readText()
 
-    File("$sourceFolder/out/$subPath/assets/css/styles.css").also {
+    File("${config.sourceFolder}/out/${config.blogs}/assets/css/styles.css").also {
         it.parentFile.mkdirs()
     }.writeText(css)
 
@@ -79,17 +76,17 @@ private fun processSingleFile(fileText: String, subPath: String, flavour: Common
 }
 
 
-fun prepFullFile(processed: List<Entry>, includeTOC: Boolean): String {
-    val prefix = if (includeTOC) generateTOC(processed) else ""
+fun prepFullFile(processed: List<Entry>, includeTOC: Boolean, tocTitle: String): String {
+    val prefix = if (includeTOC) generateTOC(processed, tocTitle) else ""
     return prefix + processed.joinToString("\n") { it.html }
 }
 
-fun generateTOC(processed: List<Entry>): String {
+fun generateTOC(processed: List<Entry>, tocTitle: String): String {
     val contents = processed.joinToString("\n") {
-        val name = it.name.replace("-", "")
+        val name = it.name.replace("-", " ")
        "<li><a href=\"#${it.name}\">$name</a></li>"
     }
-    return """<h1>Table of Contents</h1>
+    return """<h1>$tocTitle</h1>
 <ol>
 $contents
 </ol>"""
