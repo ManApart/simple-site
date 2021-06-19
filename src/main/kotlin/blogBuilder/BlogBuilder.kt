@@ -3,7 +3,6 @@ package blogBuilder
 import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
 import org.intellij.markdown.html.HtmlGenerator
 import org.intellij.markdown.parser.MarkdownParser
-import simpleSite.readConfig
 import simpleSite.readSiteConfig
 import java.io.File
 import java.time.LocalDate
@@ -14,10 +13,11 @@ fun main() {
     val folderPath = config["folderPath"]!! as String
     val subPath = config["blogs"]!! as String
     val tabTitle = config["tabTitle"]!! as String
-    buildBlog(folderPath, subPath, tabTitle)
+    val includeTOC = config["toc"] as Boolean? ?: false
+    buildBlog(folderPath, subPath, tabTitle, includeTOC)
 }
 
-fun buildBlog(sourceFolder: String, subPath: String, tabTitle: String) {
+fun buildBlog(sourceFolder: String, subPath: String, tabTitle: String, includeTOC: Boolean) {
     val files = parseFiles("$sourceFolder/$subPath/")
 
     val processed = process(files, subPath)
@@ -28,7 +28,8 @@ fun buildBlog(sourceFolder: String, subPath: String, tabTitle: String) {
     }
 
     //write a page for all entries
-    writeFile(sourceFolder, subPath, "index", processed.joinToString("\n") { it.html }, tabTitle)
+    val content = prepFullFile(processed, includeTOC)
+    writeFile(sourceFolder, subPath, "index", content, tabTitle)
 
     val css = File("$sourceFolder/styles.css").readText()
 
@@ -58,6 +59,7 @@ private fun processSingleFile(fileText: String, subPath: String, flavour: Common
         .replace("#", "")
         .trim()
     val cleanedName = name.replace(" ", "-")
+    val dateText = lines[2].trim()
 
     val titleLine = "# [$name](/$subPath/$cleanedName.html)"
     val toParse = (listOf(titleLine) + lines.subList(1, lines.size)).joinToString("\n")
@@ -67,11 +69,30 @@ private fun processSingleFile(fileText: String, subPath: String, flavour: Common
         .replace("<body>", "")
         .replace("</body>", "")
         .replace("\n", "<br/>")
+        .replace("<h1>", "<h1 id=\"$cleanedName\">")
+        .replaceFirst(dateText, "<div class=\"entry-date\">$dateText</div>")
 
 
-    val dateText = lines[2].trim()
+
     val date = LocalDate.parse(dateText!!, DateTimeFormatter.ofPattern("M-dd-yyyy"))
     return Entry(cleanedName, date, fileText, html)
+}
+
+
+fun prepFullFile(processed: List<Entry>, includeTOC: Boolean): String {
+    val prefix = if (includeTOC) generateTOC(processed) else ""
+    return prefix + processed.joinToString("\n") { it.html }
+}
+
+fun generateTOC(processed: List<Entry>): String {
+    val contents = processed.joinToString("\n") {
+        val name = it.name.replace("-", "")
+       "<li><a href=\"#${it.name}\">$name</a></li>"
+    }
+    return """<h1>Table of Contents</h1>
+<ol>
+$contents
+</ol>"""
 }
 
 fun writeFile(sourceFolder: String, subPath: String, fileName: String, contents: String, tabTitle: String) {

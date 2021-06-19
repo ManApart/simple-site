@@ -38,7 +38,8 @@ In the site's config, create something like:
 ```
 {
   "blogs": "blog",
-  "tabTitle": "Home"
+  "tabTitle": "Home",
+  "toc": true
 }
 ```
 
@@ -46,6 +47,7 @@ Property | Value
 --- | ---
 blogs | sub path where your blog markdown sources are
 tabTitle | Title of tab for full index
+toc | generate a table of contents
 
 ## TODO
 
