@@ -58,20 +58,29 @@ private fun processSingleFile(fileText: String, subPath: String, flavour: Common
     val cleanedName = name.replace(" ", "-")
     val dateText = lines[2].trim()
 
+    val date = try {
+        LocalDate.parse(dateText, DateTimeFormatter.ofPattern("M-dd-yyyy"))
+    } catch (e: Exception) {
+        LocalDate.MIN
+    }
+
     val titleLine = "# [$name](/$subPath/$cleanedName.html)"
     val toParse = (listOf(titleLine) + lines.subList(1, lines.size)).joinToString("\n")
 
     val parsedTree = MarkdownParser(flavour).buildMarkdownTreeFromString(toParse)
-    val html = HtmlGenerator(toParse, parsedTree, flavour).generateHtml()
+    var html = HtmlGenerator(toParse, parsedTree, flavour).generateHtml()
         .replace("<body>", "")
         .replace("</body>", "")
         .replace("\n", "<br/>")
         .replace("<h1>", "<h1 id=\"$cleanedName\">")
-        .replaceFirst(dateText, "<div class=\"entry-date\">$dateText</div>")
+
+    if (date != LocalDate.MIN) {
+        html = html.replaceFirst(dateText, "<div class=\"entry-date\">$dateText</div>")
+    }
 
 
 
-    val date = LocalDate.parse(dateText!!, DateTimeFormatter.ofPattern("M-dd-yyyy"))
+
     return Entry(cleanedName, date, fileText, html)
 }
 
@@ -84,7 +93,7 @@ fun prepFullFile(processed: List<Entry>, includeTOC: Boolean, tocTitle: String):
 fun generateTOC(processed: List<Entry>, tocTitle: String): String {
     val contents = processed.joinToString("\n") {
         val name = it.name.replace("-", " ")
-       "<li><a href=\"#${it.name}\">$name</a></li>"
+        "<li><a href=\"#${it.name}\">$name</a></li>"
     }
     return """<h1>$tocTitle</h1>
 <ol>

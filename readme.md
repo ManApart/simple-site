@@ -50,10 +50,13 @@ blogs | sub path where your blog markdown sources are
 tabTitle | Title of tab for full index
 toc | generate a table of contents
 
+### Conventions
+
+I rely on some conventions for the pipeline to work smoothly. Each blog post should:
+
+- Start with a level one header on the first line
+- Have a date on the third line (to sort by)
+
 ## TODO
 
 Possible to do some sort of if logic?
-
-Blog Builder
-- TOC?
-  - No Js scroll to / jump to option?
