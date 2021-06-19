@@ -14,21 +14,22 @@ fun main() {
     val config = readConfig()
     val folderPath = config["blogPath"]!! as String
     val subPath = config["blogSubPath"]!! as String
-    buildBlog(folderPath, subPath)
+    val tabTitle = config["tabTitle"]!! as String
+    buildBlog(folderPath, subPath, tabTitle)
 }
 
-fun buildBlog(sourceFolder: String, subPath: String) {
+fun buildBlog(sourceFolder: String, subPath: String, tabTitle: String) {
     val files = parseFiles("$sourceFolder/blogs/")
 
     val processed = process(files, subPath)
 
     //Write individual entries
     processed.forEach { entry ->
-        writeFile(sourceFolder, subPath, entry.name, entry.html)
+        writeFile(sourceFolder, subPath, entry.name, entry.html, entry.name.replace("-", " "))
     }
 
     //write a page for all entries
-    writeFile(sourceFolder, subPath, "index", processed.joinToString("\n") { it.html })
+    writeFile(sourceFolder, subPath, "index", processed.joinToString("\n") { it.html }, tabTitle)
 
     val css = File("$sourceFolder/styles.css").readText()
 
@@ -74,10 +75,14 @@ private fun processSingleFile(fileText: String, subPath: String, flavour: Common
     return Entry(cleanedName, date, fileText, html)
 }
 
-fun writeFile(sourceFolder: String, subPath: String, fileName: String, contents: String) {
+fun writeFile(sourceFolder: String, subPath: String, fileName: String, contents: String, tabTitle: String) {
     val text = """
-        <body>
+        <head>
+            <title>$tabTitle</title>
             <link href="/$subPath/assets/css/styles.css" rel="stylesheet">
+            <link rel="shortcut icon" type="image/png" href="/$subPath/assets/images/favicon.png" />
+        </head>
+        <body>
             $contents
         </body>
     """.trimIndent()

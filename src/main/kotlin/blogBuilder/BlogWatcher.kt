@@ -8,6 +8,7 @@ fun main() {
     val config = readConfig()
     val folderPath = config["blogPath"]!! as String
     val subPath = config["blogSubPath"]!! as String
+    val tabTitle = config["tabTitle"]!! as String
 
-    watch(folderPath, "$folderPath/blogs") { buildBlog(folderPath, subPath) }
+    watch(folderPath, "$folderPath/blogs") { buildBlog(folderPath, subPath, tabTitle) }
 }

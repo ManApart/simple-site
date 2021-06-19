@@ -1,9 +1,10 @@
-# Origami
+# Simple Site
 
 [![Build and Test](https://github.com/ManApart/simple-site/actions/workflows/runTests.yml/badge.svg)](https://github.com/ManApart/simple-site/actions/workflows/runTests.yml)
 
 Slightly extend html in order to build sites that don't require javascript.
 
+## Website BUilder
 
 WebsiteBuilder builds your files.
 
@@ -26,6 +27,14 @@ Manually copy your assets and css to the out folder for now
 "<ifnotnull src=\"pets\">content</ifnotnull>
 ```
 
+## Blog Builder
+
 ## TODO
 
 Possible to do some sort of if logic?
+
+Blog Builder
+- Custom tab title
+- Custom favicon
+- TOC?
+  - No Js scroll to / jump to option?
