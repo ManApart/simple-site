@@ -4,22 +4,21 @@ import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
 import org.intellij.markdown.html.HtmlGenerator
 import org.intellij.markdown.parser.MarkdownParser
 import simpleSite.readConfig
+import simpleSite.readSiteConfig
 import java.io.File
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 fun main() {
-    //src folder should look like: "blogPath": "workspace\\website"
-    //blog path look like: "blogPath": "blog"
-    val config = readConfig()
-    val folderPath = config["blogPath"]!! as String
-    val subPath = config["blogSubPath"]!! as String
+    val config = readSiteConfig()
+    val folderPath = config["folderPath"]!! as String
+    val subPath = config["blogs"]!! as String
     val tabTitle = config["tabTitle"]!! as String
     buildBlog(folderPath, subPath, tabTitle)
 }
 
 fun buildBlog(sourceFolder: String, subPath: String, tabTitle: String) {
-    val files = parseFiles("$sourceFolder/blogs/")
+    val files = parseFiles("$sourceFolder/$subPath/")
 
     val processed = process(files, subPath)
 

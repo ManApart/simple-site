@@ -29,12 +29,28 @@ Manually copy your assets and css to the out folder for now
 
 ## Blog Builder
 
+Build out index files from markdown source.
+Create a config file in your blog directory, then in this app's config, add the path to the folder that holds that config.
+In this app's config create something like: `"blogPath": "workspace\\website"`
+
+
+In the site's config, create something like:
+```
+{
+  "blogs": "blog",
+  "tabTitle": "Home"
+}
+```
+
+Property | Value
+--- | ---
+blogs | sub path where your blog markdown sources are
+tabTitle | Title of tab for full index
+
 ## TODO
 
 Possible to do some sort of if logic?
 
 Blog Builder
-- Custom tab title
-- Custom favicon
 - TOC?
   - No Js scroll to / jump to option?
