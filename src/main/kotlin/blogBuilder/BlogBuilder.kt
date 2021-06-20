@@ -1,13 +1,16 @@
 package blogBuilder
 
-import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
-import org.intellij.markdown.html.HtmlGenerator
-import org.intellij.markdown.parser.MarkdownParser
+import com.vladsch.flexmark.ext.tables.TablesExtension
+import com.vladsch.flexmark.util.data.MutableDataSet
 import simpleSite.blogBuilder.SiteConfig
 import simpleSite.readSiteConfig
 import java.io.File
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import com.vladsch.flexmark.util.ast.Node
+import com.vladsch.flexmark.html.HtmlRenderer
+import com.vladsch.flexmark.parser.Parser
+
 
 fun main() {
     val config = readSiteConfig()
@@ -43,14 +46,17 @@ fun parseFiles(sourceFolder: String): Map<String, String> {
 }
 
 fun process(files: Map<String, String>, subPath: String): List<Entry> {
-    val flavour = CommonMarkFlavourDescriptor()
+    val options = MutableDataSet()
+    options.set(Parser.EXTENSIONS, listOf(TablesExtension.create()))
+    val parser: Parser = Parser.builder(options).build()
+    val renderer: HtmlRenderer = HtmlRenderer.builder(options).build()
 
     return files.values
-        .map { processSingleFile(it, subPath, flavour) }
+        .map { processSingleFile(it, subPath, parser, renderer) }
         .sortedByDescending { it.date }
 }
 
-private fun processSingleFile(fileText: String, subPath: String, flavour: CommonMarkFlavourDescriptor): Entry {
+private fun processSingleFile(fileText: String, subPath: String, parser: Parser, renderer: HtmlRenderer): Entry {
     val lines = fileText.split("\n")
     val name = lines[0]
         .replace("#", "")
@@ -66,20 +72,16 @@ private fun processSingleFile(fileText: String, subPath: String, flavour: Common
 
     val titleLine = "# [$name](/$subPath/$cleanedName.html)"
     val toParse = (listOf(titleLine) + lines.subList(1, lines.size)).joinToString("\n")
+    val document: Node = parser.parse(toParse)
 
-    val parsedTree = MarkdownParser(flavour).buildMarkdownTreeFromString(toParse)
-    var html = HtmlGenerator(toParse, parsedTree, flavour).generateHtml()
+    var html = renderer.render(document)
         .replace("<body>", "")
         .replace("</body>", "")
-        .replace("\n", "<br/>")
         .replace("<h1>", "<h1 id=\"$cleanedName\">")
 
     if (date != LocalDate.MIN) {
         html = html.replaceFirst(dateText, "<div class=\"entry-date\">$dateText</div>")
     }
-
-
-
 
     return Entry(cleanedName, date, fileText, html)
 }

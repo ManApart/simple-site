@@ -12,7 +12,8 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib"))
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.9.0")
-    implementation("org.jetbrains:markdown:0.1.45")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.5.0")
+    implementation("com.vladsch.flexmark:flexmark-all:0.62.2")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.3.1")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.3.1")
 }
