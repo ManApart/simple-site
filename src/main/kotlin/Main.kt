@@ -8,8 +8,8 @@ fun main(args: Array<String>) {
     if (args.size != 2){
         throw IllegalArgumentException("Must include build type and path!\n" + help())
     }
-//    println("Type: " + args[0])
-//    println("Source: " + args[1])
+    println("Type: " + args[0])
+    println("Source: " + args[1])
 
     val sourceFolder = File(args[1]).canonicalFile
     if (!sourceFolder.exists() || !sourceFolder.isDirectory){
