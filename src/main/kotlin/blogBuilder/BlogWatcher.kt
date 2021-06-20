@@ -1,8 +1,7 @@
-package simpleSite.blogBuilder
+package blogBuilder
 
-import blogBuilder.buildBlog
 import simpleSite.readSiteConfig
-import simpleSite.watch
+import watch
 
 fun main() {
     val config = readSiteConfig()

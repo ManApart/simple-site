@@ -13,8 +13,6 @@ val ifNotNuller = Transformer("ifnotnull") { IfNull(it, false) }
 val ifNuller = Transformer("ifnull") { IfNull(it, true) }
 
 fun main() {
-    //src folder should look like: "folderPath": "workspace\\website\\src"
-    val text = File("./src/simpleSite.main/resources/config.json").readText()
     val folderPath = readConfig()["folderPath"]!! as String
     buildSite(folderPath)
 }
