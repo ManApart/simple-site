@@ -1,7 +1,5 @@
-package simpleSite.simpleSite
+package simpleSite
 
-import simpleSite.buildSite
-import simpleSite.readConfig
 import watch
 
 fun main() {

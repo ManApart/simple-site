@@ -18,6 +18,7 @@ fun watch(path: String, secondPath: String, builder: () -> Unit) {
 
     builder()
     var lastBuild = System.currentTimeMillis()
+    println("Starting to watch $pathToWatch and $pathToWatch2")
     while (true) {
         val watchKey = watchService.take()
 
