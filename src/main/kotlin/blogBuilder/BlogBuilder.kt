@@ -105,6 +105,8 @@ $contents
 
 fun writeFile(sourceFolder: String, subPath: String, fileName: String, contents: String, tabTitle: String) {
     val text = """
+        <!DOCTYPE html>
+        <html lang="en">
         <head>
             <title>$tabTitle</title>
             <link href="/$subPath/assets/css/styles.css" rel="stylesheet">
@@ -113,6 +115,7 @@ fun writeFile(sourceFolder: String, subPath: String, fileName: String, contents:
         <body>
             $contents
         </body>
+        </html>
     """.trimIndent()
 
     File("$sourceFolder/out/$subPath/$fileName.html").also {
