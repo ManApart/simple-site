@@ -71,7 +71,7 @@ private fun processSingleFile(fileText: String, subPath: String, parser: Parser,
     }
 
     val titleLine = "# [$name](/$subPath/$cleanedName.html)"
-    val toParse = (listOf(titleLine) + lines.subList(1, lines.size)).joinToString("\n")
+    val toParse = (listOf(titleLine) + lines.subList(1, lines.size)).joinToString("\n\n")
     val document: Node = parser.parse(toParse)
 
     var html = renderer.render(document)
