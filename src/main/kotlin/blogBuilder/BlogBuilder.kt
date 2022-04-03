@@ -71,7 +71,9 @@ private fun processSingleFile(fileText: String, subPath: String, parser: Parser,
     }
 
     val titleLine = "# [$name](/$subPath/$cleanedName.html)"
-    val toParse = (listOf(titleLine) + lines.subList(1, lines.size)).joinToString("\n\n")
+    //Don't add extra spaces to tables
+    val properlySpaced = lines.subList(1, lines.size).map { if (it.contains("|")) it else "$it\n" }
+    val toParse = (listOf(titleLine + "\n") + properlySpaced).joinToString("\n")
     val document: Node = parser.parse(toParse)
 
     var html = renderer.render(document)
