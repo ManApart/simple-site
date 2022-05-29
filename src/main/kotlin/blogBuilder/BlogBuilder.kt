@@ -85,6 +85,8 @@ private fun processSingleFile(fileText: String, subPath: String, parser: Parser,
         html = html.replaceFirst(dateText, "<div class=\"entry-date\">$dateText</div>")
     }
 
+    html = "<div class=\"entry\">$html</div>"
+
     return Entry(cleanedName, date, fileText, html)
 }
 
