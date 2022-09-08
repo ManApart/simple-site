@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.5.0"
+    kotlin("jvm") version "1.7.10"
 }
 
 group = "org.rak.manapart"
@@ -11,6 +11,7 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib"))
+    implementation("org.jsoup:jsoup:1.11.2")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.5.0")
     implementation("com.vladsch.flexmark:flexmark-all:0.64.0")
