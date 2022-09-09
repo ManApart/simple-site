@@ -9,7 +9,7 @@ https://highlightjs.org/
  */
 class CodeBlockSyntaxTest {
     private val source = """
-    <code class="language-kotlin">
+    <code>
     object JsonObject {
         fun keys(obj: Any): List&lt;String&gt; {
             val raw = js("Object.keys(obj)") as Array&lt;*&gt;
@@ -48,7 +48,7 @@ class CodeBlockSyntaxTest {
         """
         val expected = """
             <code class="hljs">
-            <span class="hljs-keyword">class</span> Thingy(){} 
+            <span class="hljs-keyword">class</span> Thingy(){}
             </code>""".trimIndent().replace("\n", "")
 
         val actual = formatCodeBlocks(source).unwrap()
@@ -64,8 +64,8 @@ class CodeBlockSyntaxTest {
             </code>
         """
         val expected = """
-            <code class = "hljs">
-            <span class="hljs-keyword">class</span> Thingy(){}
+            <code class="hljs">
+            <span class="hljs-keyword">class</span> Thingy(){} 
             <span class="hljs-keyword">class</span> OtherThingy(){}
             </code>
         """.trimIndent().replace("\n", "")

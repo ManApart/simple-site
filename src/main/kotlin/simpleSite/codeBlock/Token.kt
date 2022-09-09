@@ -33,18 +33,22 @@ class ExactMatcher(private val matches: List<String>) : Matcher {
     }
 }
 
-class TokenType(className: String, matcher: Matcher) {
+class TokenType(private val className: String, private val matcher: Matcher) {
     fun parse(line: String): List<Token> {
-        //keep calling getNext until it returns empty
-        return emptyList()
+        val tokens = mutableListOf<Token>()
+        var token = matcher.getNext(line, 0)
+        while(token != null){
+            tokens.add(Token(token.first, token.second, className))
+            token = matcher.getNext(line, token.second)
+        }
+
+        return tokens
     }
 }
 
-//These are coordinates of the OG string, but will be wrong once we manipulate it
-//Must be called working from back of the string towards the front
-class Token(val start: Int, val end: Int, val className: String) {
+class Token(val start: Int, private val end: Int, private val className: String) {
     fun embellish(line: String): String {
-        return line
+        return line.substring(0, start) + "<span class=\"$className\">" + line.substring(start, end) + "</span>" + line.substring(end, line.length)
     }
 
 }
