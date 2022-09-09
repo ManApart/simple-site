@@ -8,16 +8,18 @@ class Cap(val starts: List<String>, val ends: List<String>, val includeStart: Bo
     constructor(start: String, end: String, includeStart: Boolean = false, includeEnd: Boolean = false) : this(listOf(start), listOf(end), includeStart, includeEnd)
 
     fun getNext(line: String, start: Int): Pair<Int, Int>? {
+        val matchStart = starts.map { line.indexOf(it, start) }.filterNot { it == -1 }.minOrNull()
+        if (matchStart != null) {
+            val end = ends.map { line.indexOf(it, matchStart) }.filterNot { it == -1 }.minOrNull()
+            return Pair(matchStart, end ?: line.length)
+        }
         return null
     }
 }
 
-class Identifier(private val caps: List<Cap>) : Matcher {
+class CapMatcher(private val caps: List<Cap>) : Matcher {
     override fun getNext(line: String, start: Int): Pair<Int, Int>? {
-        //find all matching caps
-        //return the one with the earliest start
-        caps.mapNotNull { it.getNext(line, start) }
-        return null
+        return caps.mapNotNull { it.getNext(line, start) }.minByOrNull { it.first }
     }
 }
 
@@ -37,7 +39,7 @@ class TokenType(private val className: String, private val matcher: Matcher) {
     fun parse(line: String): List<Token> {
         val tokens = mutableListOf<Token>()
         var token = matcher.getNext(line, 0)
-        while(token != null){
+        while (token != null) {
             tokens.add(Token(token.first, token.second, className))
             token = matcher.getNext(line, token.second)
         }
