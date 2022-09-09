@@ -15,7 +15,7 @@ class Identifier(val caps: List<Cap>) : Matcher {
     override fun getNext(line: String, start: Int): Pair<Int, Int>? {
         //find all matching caps
         //return the one with the earliest start
-        caps.mapNotNull { it.getNext() }
+        caps.mapNotNull { it.getNext(line, start) }
         return null
     }
 }
