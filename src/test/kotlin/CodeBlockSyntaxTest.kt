@@ -1,7 +1,12 @@
 import org.jsoup.Jsoup
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import simpleSite.codeBlock.formatCodeBlocks
 
+/*
+Highlight syntax in code blocks. So a naive version of higlightjs, but at generation time instead of runtime
+https://highlightjs.org/
+ */
 class CodeBlockSyntaxTest {
     private val source = """
     <code class="language-kotlin">
@@ -26,11 +31,17 @@ class CodeBlockSyntaxTest {
     """.trimIndent()
 
     @Test
+    fun topLevel() {
+        val source = "<code></code>"
+        val expected = "<code class = \"hljs\"></code>"
+
+        val actual = formatCodeBlocks(source)
+        assertEquals(expected, actual)
+    }
+
+    @Test
     fun appendCodeStyles() {
-        val doc = Jsoup.parse(source)
-        val code = doc.select("code")
-        println(code.html())
-        val actual = ""
+        val actual = formatCodeBlocks(source)
         assertEquals(expected, actual)
     }
 
