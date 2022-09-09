@@ -91,6 +91,24 @@ class CodeBlockSyntaxTest {
     }
 
     @Test
+    fun doubleCap() {
+        val source = """
+            <code>
+            @Annotation
+            @AnotherMeta
+            </code>
+        """
+        val expected = """
+            <code class="hljs">
+            <span class="hljs-meta">@Annotation</span> 
+            <span class="hljs-meta">@AnotherMeta</span>
+            </code>""".trimIndent().replace("\n", "")
+
+        val actual = formatCodeBlocks(source).unwrap()
+        assertEquals(expected, actual)
+    }
+
+    @Test
     fun appendCodeStyles() {
         val actual = formatCodeBlocks(source).unwrap()
         assertEquals(expected, actual)
