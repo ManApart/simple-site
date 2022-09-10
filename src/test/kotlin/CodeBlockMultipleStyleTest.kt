@@ -40,18 +40,16 @@ class CodeBlockMultipleStyleTest {
                 val raw = js("Object.keys(obj)") as Array&lt;*&gt;
                 return raw.map { it as String }
             }
-        }
         }</code>
         """.trimIndent()
 
         val expected = """
         <code class="hljs"><span class="hljs-keyword">object</span> JsonObject {
             <span class="hljs-function">fun</span> <span class="hljs-title">keys</span>(obj: <span class="hljs-type">Any</span>): <span class="hljs-type">List&lt;String&gt;</span> {
-                <span class="hljs-keyword">val</span> raw = js("<span class="hljs-string">Object.keys(obj)</span>") <span class="hljs-keyword">as</span> <span class="hljs-type">Array&lt;*&gt;</span>
-                <span class="hljs-keyword">return</span> raw.map { it <span class="hljs-keyword">as</span> <span class="hljs-type">String</span> }
+                <span class="hljs-keyword">val </span>raw = js("<span class="hljs-string">Object.keys(obj)</span>") <span class="hljs-keyword">as </span><span class="hljs-type">Array&lt;*&gt;</span>
+                <span class="hljs-keyword">return</span> raw.<span class="hljs-title">map</span> { it <span class="hljs-keyword">as </span><span class="hljs-type">String</span> }
             }
-        }
-        </code>
+        }</code>
         """.unwrap()
 
         val actual = source.formatCodeBlocks().unwrap().replace("\n", "")

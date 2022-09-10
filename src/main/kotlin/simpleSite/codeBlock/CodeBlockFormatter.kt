@@ -8,14 +8,14 @@ Highlight syntax in code blocks. So a naive version of higlightjs, but at genera
 https://highlightjs.org/
  */
 private val tokenTypes = listOf(
-    TokenType("hljs-keyword", ExactMatcher(listOf("class", "object", "external", "return", "val ", "var "))),
+    TokenType("hljs-keyword", ExactMatcher(listOf("class", "object", "external", "return", "val ", "var ", "as "))),
     TokenType("hljs-function", ExactMatcher(listOf("fun"))),
     TokenType("hljs-meta", CapMatcher(listOf(
         Cap(listOf("@"), listOf(" ", "\n", "("), includeStart = true)
     ))),
     TokenType("hljs-string", CapMatcher(Cap("\"", "\""))),
-    TokenType("hljs-title", CapMatcher(Cap(listOf(".", "fun "), listOf("(")))),
-    TokenType("hljs-type", CapMatcher(Cap(listOf(": "), listOf(")", ",", " ", "\n")))),
+    TokenType("hljs-title", CapMatcher(Cap(listOf(".", "fun "), listOf("(", " ", "{")))),
+    TokenType("hljs-type", CapMatcher(Cap(listOf(": ", "as "), listOf(")", ",", " ", "\n")))),
 )
 
 fun String.formatCodeBlocks(): String {
