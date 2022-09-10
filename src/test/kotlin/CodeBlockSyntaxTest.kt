@@ -14,8 +14,8 @@ class CodeBlockSyntaxTest {
     @JsModule("localforage")
     @JsNonModule
     external object LocalForage {
-        fun setItem(key: String, value: Any): Promise<*>
-        fun getItem(key: String): Promise<*>
+        fun setItem(key: String, value: Any): Promise&lt;*&gt;
+        fun getItem(key: String): Promise&lt;Any?&gt;
     }
     </code>
     """.trimIndent()
@@ -25,7 +25,7 @@ class CodeBlockSyntaxTest {
         <span class="hljs-meta">@JsNonModule</span>
         <span class="hljs-keyword">external</span> <span class="hljs-keyword">object</span> LocalForage {
             <span class="hljs-function">fun</span> <span class="hljs-title">setItem</span>(key: <span class="hljs-type">String</span>, value: <span class="hljs-type">Any</span>)</span>: <span class="hljs-type">Promise&lt;*&gt;</span>
-            <span class="hljs-function">fun</span> <span class="hljs-title">getItem</span>(key: <span class="hljs-type">String</span>)</span>: <span class="hljs-type">Promise&lt;*&gt;</span>
+            <span class="hljs-function">fun</span> <span class="hljs-title">getItem</span>(key: <span class="hljs-type">String</span>)</span>: <span class="hljs-type">Promise&lt;Any?&gt;</span>
         }</code>
     """.unwrap()
 
@@ -124,12 +124,28 @@ class CodeBlockSyntaxTest {
     }
 
     @Test
+    fun typeWithGeneric() {
+        val source = """
+            <code>
+            inputs: List&lt;Any?&gt;
+            </code>
+        """
+        val expected = """
+            <code class="hljs">
+            inputs: <span class="hljs-type">List&lt;Any?&gt;</span>
+            </code>""".trimIndent().replace("\n", "")
+
+        val actual = formatCodeBlocks(source).unwrap()
+        assertEquals(expected, actual)
+    }
+
+    @Test
     fun appendCodeStyles() {
         val actual = formatCodeBlocks(source).unwrap().replace("\n", "")
         assertEquals(expected, actual)
     }
 
     private fun String.unwrap(): String {
-        return Jsoup.parse(this).body().html()
+        return Jsoup.parse(this).body().html().replace("\n", "")
     }
 }
