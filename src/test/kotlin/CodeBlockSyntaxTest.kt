@@ -8,27 +8,26 @@ Highlight syntax in code blocks. So a naive version of higlightjs, but at genera
 https://highlightjs.org/
  */
 class CodeBlockSyntaxTest {
+    //TODO - do one with Promise<Any?>
     private val source = """
     <code>
     @JsModule("localforage")
     @JsNonModule
     external object LocalForage {
         fun setItem(key: String, value: Any): Promise<*>
-        fun getItem(key: String): Promise<Any?>
+        fun getItem(key: String): Promise<*>
     }
     </code>
     """.trimIndent()
 
     private val expected = """
-        <code class="hljs">
-        <span class="hljs-meta">@JsModule(<span class="hljs-string">"localforage"</span>)</span>
+        <code class="hljs"><span class="hljs-meta">@JsModule</span>("<span class="hljs-string">localforage</span>") 
         <span class="hljs-meta">@JsNonModule</span>
         <span class="hljs-keyword">external</span> <span class="hljs-keyword">object</span> LocalForage {
-            <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">setItem</span><span class="hljs-params">(key: <span class="hljs-type">String</span>, value: <span class="hljs-type">Any</span>)</span></span>: Promise&lt;*&gt;
-            <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">getItem</span><span class="hljs-params">(key: <span class="hljs-type">String</span>)</span></span>: Promise&lt;Any?&gt;
-        }
-        </code>
-    """.trimIndent().replace("\n", "")
+            <span class="hljs-function">fun</span> <span class="hljs-title">setItem</span>(key: <span class="hljs-type">String</span>, value: <span class="hljs-type">Any</span>)</span>: <span class="hljs-type">Promise&lt;*&gt;</span>
+            <span class="hljs-function">fun</span> <span class="hljs-title">getItem</span>(key: <span class="hljs-type">String</span>)</span>: <span class="hljs-type">Promise&lt;*&gt;</span>
+        }</code>
+    """.unwrap()
 
     @Test
     fun topLevel() {
@@ -109,8 +108,24 @@ class CodeBlockSyntaxTest {
     }
 
     @Test
-    fun appendCodeStyles() {
+    fun simpleString() {
+        val source = """
+            <code>
+            JsModule("localforage")
+            </code>
+        """
+        val expected = """
+            <code class="hljs">
+            JsModule("<span class="hljs-string">localforage</span>")
+            </code>""".trimIndent().replace("\n", "")
+
         val actual = formatCodeBlocks(source).unwrap()
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun appendCodeStyles() {
+        val actual = formatCodeBlocks(source).unwrap().replace("\n", "")
         assertEquals(expected, actual)
     }
 

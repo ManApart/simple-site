@@ -4,11 +4,14 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 
 private val tokenTypes = listOf(
-    TokenType("hljs-keyword", ExactMatcher(listOf("class", "object", "external", "fun"))),
+    TokenType("hljs-keyword", ExactMatcher(listOf("class", "object", "external"))),
+    TokenType("hljs-function", ExactMatcher(listOf("fun"))),
     TokenType("hljs-meta", CapMatcher(listOf(
-        Cap(listOf("@"), listOf(" ", "\n"), true, false)
+        Cap(listOf("@"), listOf(" ", "\n", "("), true)
     ))),
-    TokenType("hljs-string", CapMatcher(Cap("\"", "\"", false, false))),
+    TokenType("hljs-string", CapMatcher(Cap("\"", "\""))),
+    TokenType("hljs-title", CapMatcher(Cap(listOf(".", "fun "), listOf("(")))),
+    TokenType("hljs-type", CapMatcher(Cap(listOf(": "), listOf(")", ",", " ", "\n")))),
 )
 
 fun formatCodeBlocks(htmlText: String): String {
