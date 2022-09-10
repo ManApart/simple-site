@@ -8,6 +8,7 @@ private val tokenTypes = listOf(
     TokenType("hljs-meta", CapMatcher(listOf(
         Cap(listOf("@"), listOf(" ", "\n"), true, false)
     ))),
+    TokenType("hljs-string", CapMatcher(Cap("\"", "\"", false, false))),
 )
 
 fun formatCodeBlocks(htmlText: String): String {

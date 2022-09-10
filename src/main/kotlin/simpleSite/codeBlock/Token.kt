@@ -4,13 +4,13 @@ interface Matcher {
     fun getNext(line: String, start: Int): Pair<Int, Int>?
 }
 
-class Cap(val starts: List<String>, val ends: List<String>, val includeStart: Boolean = false, val includeEnd: Boolean = false) {
+class Cap(private val starts: List<String>, private val ends: List<String>, val includeStart: Boolean = false, val includeEnd: Boolean = false) {
     constructor(start: String, end: String, includeStart: Boolean = false, includeEnd: Boolean = false) : this(listOf(start), listOf(end), includeStart, includeEnd)
 
     fun getNext(line: String, start: Int): Pair<Int, Int>? {
         val matchStart = starts.map { line.indexOf(it, start) }.filterNot { it == -1 }.minOrNull()
         if (matchStart != null) {
-            val end = ends.map { line.indexOf(it, matchStart) }.filterNot { it == -1 }.minOrNull()
+            val end = ends.map { line.indexOf(it, matchStart+1) }.filterNot { it == -1 }.minOrNull()
             return Pair(matchStart, end ?: line.length)
         }
         return null
@@ -18,6 +18,7 @@ class Cap(val starts: List<String>, val ends: List<String>, val includeStart: Bo
 }
 
 class CapMatcher(private val caps: List<Cap>) : Matcher {
+    constructor(cap: Cap) : this(listOf(cap))
     override fun getNext(line: String, start: Int): Pair<Int, Int>? {
         return caps.mapNotNull { it.getNext(line, start) }.minByOrNull { it.first }
     }
