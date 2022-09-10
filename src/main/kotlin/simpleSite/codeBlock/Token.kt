@@ -56,7 +56,7 @@ class TokenType(private val className: String, private val matcher: Matcher) {
     }
 }
 
-class Token(val start: Int, private val end: Int, private val className: String) {
+class Token(val start: Int, val end: Int, private val className: String) {
     fun embellish(line: String): String {
         return line.substring(0, start) + "<span class=\"$className\">" + line.substring(start, end) + "</span>" + line.substring(end, line.length)
     }

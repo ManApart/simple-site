@@ -10,6 +10,7 @@ import java.time.format.DateTimeFormatter
 import com.vladsch.flexmark.util.ast.Node
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.parser.Parser
+import simpleSite.codeBlock.formatCodeBlocks
 
 
 fun main() {
@@ -80,6 +81,7 @@ private fun processSingleFile(fileText: String, subPath: String, parser: Parser,
         .replace("<body>", "")
         .replace("</body>", "")
         .replace("<h1>", "<h1 id=\"$cleanedName\">")
+        .formatCodeBlocks()
 
     if (date != LocalDate.MIN) {
         html = html.replaceFirst(dateText, "<div class=\"entry-date\">$dateText</div>")

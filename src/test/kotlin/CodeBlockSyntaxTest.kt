@@ -8,33 +8,12 @@ Highlight syntax in code blocks. So a naive version of higlightjs, but at genera
 https://highlightjs.org/
  */
 class CodeBlockSyntaxTest {
-    //TODO - do one with Promise<Any?>
-    private val source = """
-    <code>
-    @JsModule("localforage")
-    @JsNonModule
-    external object LocalForage {
-        fun setItem(key: String, value: Any): Promise&lt;*&gt;
-        fun getItem(key: String): Promise&lt;Any?&gt;
-    }
-    </code>
-    """.trimIndent()
-
-    private val expected = """
-        <code class="hljs"><span class="hljs-meta">@JsModule</span>("<span class="hljs-string">localforage</span>") 
-        <span class="hljs-meta">@JsNonModule</span>
-        <span class="hljs-keyword">external</span> <span class="hljs-keyword">object</span> LocalForage {
-            <span class="hljs-function">fun</span> <span class="hljs-title">setItem</span>(key: <span class="hljs-type">String</span>, value: <span class="hljs-type">Any</span>)</span>: <span class="hljs-type">Promise&lt;*&gt;</span>
-            <span class="hljs-function">fun</span> <span class="hljs-title">getItem</span>(key: <span class="hljs-type">String</span>)</span>: <span class="hljs-type">Promise&lt;Any?&gt;</span>
-        }</code>
-    """.unwrap()
-
     @Test
     fun topLevel() {
         val source = "<code></code>"
         val expected = "<code class=\"hljs\"></code>"
 
-        val actual = formatCodeBlocks(source).unwrap()
+        val actual = source.formatCodeBlocks().unwrap()
         assertEquals(expected, actual)
     }
 
@@ -50,7 +29,7 @@ class CodeBlockSyntaxTest {
             <span class="hljs-keyword">class</span> Thingy(){}
             </code>""".trimIndent().replace("\n", "")
 
-        val actual = formatCodeBlocks(source).unwrap()
+        val actual = source.formatCodeBlocks().unwrap()
         assertEquals(expected, actual)
     }
 
@@ -69,7 +48,7 @@ class CodeBlockSyntaxTest {
             </code>
         """.trimIndent().replace("\n", "")
 
-        val actual = formatCodeBlocks(source).unwrap()
+        val actual = source.formatCodeBlocks().unwrap()
         assertEquals(expected, actual)
     }
 
@@ -85,7 +64,7 @@ class CodeBlockSyntaxTest {
             <span class="hljs-meta">@Annotation</span>
             </code>""".trimIndent().replace("\n", "")
 
-        val actual = formatCodeBlocks(source).unwrap()
+        val actual = source.formatCodeBlocks().unwrap()
         assertEquals(expected, actual)
     }
 
@@ -103,7 +82,7 @@ class CodeBlockSyntaxTest {
             <span class="hljs-meta">@AnotherMeta</span>
             </code>""".trimIndent().replace("\n", "")
 
-        val actual = formatCodeBlocks(source).unwrap()
+        val actual = source.formatCodeBlocks().unwrap()
         assertEquals(expected, actual)
     }
 
@@ -119,7 +98,7 @@ class CodeBlockSyntaxTest {
             JsModule("<span class="hljs-string">localforage</span>")
             </code>""".trimIndent().replace("\n", "")
 
-        val actual = formatCodeBlocks(source).unwrap()
+        val actual = source.formatCodeBlocks().unwrap()
         assertEquals(expected, actual)
     }
 
@@ -135,17 +114,23 @@ class CodeBlockSyntaxTest {
             inputs: <span class="hljs-type">List&lt;Any?&gt;</span>
             </code>""".trimIndent().replace("\n", "")
 
-        val actual = formatCodeBlocks(source).unwrap()
+        val actual = source.formatCodeBlocks().unwrap()
         assertEquals(expected, actual)
     }
 
     @Test
-    fun appendCodeStyles() {
-        val actual = formatCodeBlocks(source).unwrap().replace("\n", "")
-        assertEquals(expected, actual)
-    }
+    fun nestedStylePicksWidest() {
+        val source = """
+            <code>
+            js("Object.keys(obj)") 
+            </code>
+        """
+        val expected = """
+            <code class="hljs">
+            js("<span class="hljs-string">Object.keys(obj)</span>")
+            </code>""".trimIndent().replace("\n", "")
 
-    private fun String.unwrap(): String {
-        return Jsoup.parse(this).body().html().replace("\n", "")
+        val actual = source.formatCodeBlocks().unwrap()
+        assertEquals(expected, actual)
     }
 }
