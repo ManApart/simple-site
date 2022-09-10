@@ -10,14 +10,14 @@ https://highlightjs.org/
 class CodeBlockSyntaxTest {
     private val source = """
     <code>
-    object JsonObject {
-        fun keys(obj: Any): List&lt;String&gt; {
-            val raw = js("Object.keys(obj)") as Array&lt;*&gt;
-            return raw.map { it as String }
-        }
-      }
+    @JsModule("localforage")
+    @JsNonModule
+    external object LocalForage {
+        fun setItem(key: String, value: Any): Promise<*>
+        fun getItem(key: String): Promise<Any?>
+    }
     </code>
-""".trimIndent()
+    """.trimIndent()
 
     private val expected = """
         <code class="hljs">

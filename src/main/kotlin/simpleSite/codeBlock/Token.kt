@@ -8,10 +8,14 @@ class Cap(private val starts: List<String>, private val ends: List<String>, val 
     constructor(start: String, end: String, includeStart: Boolean = false, includeEnd: Boolean = false) : this(listOf(start), listOf(end), includeStart, includeEnd)
 
     fun getNext(line: String, start: Int): Pair<Int, Int>? {
-        val matchStart = starts.map { line.indexOf(it, start) }.filterNot { it == -1 }.minOrNull()
-        if (matchStart != null) {
-            val end = ends.map { line.indexOf(it, matchStart+1) }.filterNot { it == -1 }.minOrNull()
-            return Pair(matchStart, end ?: line.length)
+        val matchStartPair = starts.map { it to line.indexOf(it, start) }.filterNot { it.second == -1 }.minByOrNull { it.second }
+        if (matchStartPair != null) {
+            val (startText, matchStart) = matchStartPair
+            val endPair = ends.map { it to line.indexOf(it, matchStart + 1) }.filterNot { it.second == -1 }.minByOrNull { it.second }
+            val (endText, matchEnd) = endPair ?: Pair("", line.length)
+            val trueStart = if (includeStart) matchStart else matchStart + startText.length
+            val trueEnd = if (includeEnd)  matchEnd + endText.length else matchEnd
+            return Pair(trueStart, trueEnd)
         }
         return null
     }
@@ -19,6 +23,7 @@ class Cap(private val starts: List<String>, private val ends: List<String>, val 
 
 class CapMatcher(private val caps: List<Cap>) : Matcher {
     constructor(cap: Cap) : this(listOf(cap))
+
     override fun getNext(line: String, start: Int): Pair<Int, Int>? {
         return caps.mapNotNull { it.getNext(line, start) }.minByOrNull { it.first }
     }
