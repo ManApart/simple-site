@@ -3,6 +3,8 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import simpleSite.Context
 import simpleSite.DomParser
+import simpleSite.codeBlock.formatCodeBlocks
+import simpleSite.transformHtml
 
 class ForEachDirectiveTest {
 
@@ -111,15 +113,14 @@ class ForEachDirectiveTest {
     @Test
     fun sequentialLoop() {
         val source = "<for i=\"pet\" src=\"pets\">Looped</for><for i=\"pet\" src=\"pets\">Looped</for>"
-        val directive = ForEach(0, source.length, "pet", "pets", "Looped")
         val data = mapOf(
             "pets" to listOf(
                 mapOf("name" to "Smudge"),
                 mapOf("name" to "Ollie")
             )
         )
-        val actual = directive.compute(source, Context(data))
         val expected = "LoopedLoopedLoopedLooped"
+        val actual = transformHtml(source, Context(data))
         assertEquals(expected, actual)
     }
 
