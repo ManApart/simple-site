@@ -111,6 +111,18 @@ class ForEachDirectiveTest {
     }
 
     @Test
+    fun loopIsNull() {
+        val source = "<for i=\"pet\" src=\"person.pets\">Looped</for>"
+        val directive = ForEach(0, source.length, "pet", "pets", "Looped")
+        val data = mapOf(
+            "person" to mapOf("pets" to null)
+        )
+        val actual = directive.compute(source, Context(data))
+        val expected = ""
+        assertEquals(expected, actual)
+    }
+
+    @Test
     fun sequentialLoop() {
         val source = "<for i=\"pet\" src=\"pets\">Looped</for><for i=\"pet\" src=\"pets\">Looped</for>"
         val data = mapOf(

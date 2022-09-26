@@ -20,12 +20,12 @@ class ForEach(
     )
 
     override fun compute(source: String, context: Context): String {
-        val list = context.getValue(sourceKeyPath) as List<*>
+        val list = context.getValue(sourceKeyPath) as List<*>?
 
-        val repeated = list.filterNotNull().joinToString("") {
+        val repeated = list?.filterNotNull()?.joinToString("") {
             val newContext = context.copy(scopedData = mapOf(indexName to it))
             transformHtml(template, newContext)
-        }
+        } ?: ""
         return source.substring(0, start) + repeated + source.substring(end, source.length)
     }
 
