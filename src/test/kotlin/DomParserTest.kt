@@ -122,6 +122,7 @@ class DomParserTest {
     <for>
         <for>a</for>
         <for>b</for>
+        <for>c</for>
     Nope</for>
     <for>
         <for>c</for>

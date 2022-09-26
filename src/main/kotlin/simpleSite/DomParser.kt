@@ -63,6 +63,7 @@ class DomParser(private val name: String) {
             start != -1 && end == -1 -> {
                 throw Exception("$name has no proper end!")
             }
+
             (start == -1 || end < start) -> return null
         }
         val tag = source.substring(start + prefix.length, tagEnd)
@@ -81,14 +82,18 @@ class DomParser(private val name: String) {
     ): Int {
         var end = source.indexOf(suffix, start)
         var nextStart = source.indexOf(prefix, start + 1)
+        var previousEnd = end
 
         if (nextStart == -1 || nextStart >= end) return end
 
-        var nestCount = 0
+        var nestCount = 1
         do {
             nextStart = source.indexOf(prefix, nextStart + 1)
+            previousEnd = end
             end = source.indexOf(suffix, end + 1)
-            if (nextStart < end) nestCount++ else nestCount--
+            if (!(previousEnd < nextStart && nextStart < end)) {
+                if (nextStart < previousEnd) nestCount++ else nestCount--
+            }
 
         } while (nestCount > 0 && nextStart != -1)
 
