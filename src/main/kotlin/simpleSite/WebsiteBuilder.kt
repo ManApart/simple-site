@@ -21,17 +21,30 @@ fun buildSite(sourceFolder: String) {
     val files = parseFiles(sourceFolder)
     val data = parseData(sourceFolder)
 
-    val transformed = transformHtml(files["index.html"]!!, Context(data, files, mapOf()))
-
-    File("$sourceFolder/../out/index.html").also {
-        it.parentFile.mkdirs()
-    }.writeText(transformed)
+    files.entries.filter { it.key.startsWith("index") }.forEach { (fileName, html)->
+        createPage(fileName, html, data, files, sourceFolder)
+    }
 
     val css = File("$sourceFolder/css/").listFiles()!!
         .joinToString("\n") { it.readText() }
 
     File("$sourceFolder/../out/styles.css").writeText(css)
 
+}
+
+private fun createPage(
+    pageName: String,
+    pageHtml: String,
+    data: Map<String, Any>,
+    files: Map<String, String>,
+    sourceFolder: String
+) {
+    val transformed = transformHtml(pageHtml, Context(data, files, mapOf()))
+    val newPageName = if (pageName == "index.html") pageName else pageName.replace("index", "")
+    val outName = "$sourceFolder/../out/${newPageName}"
+    File(outName).also {
+        it.parentFile.mkdirs()
+    }.writeText(transformed)
 }
 
 fun parseFiles(sourceFolder: String): Map<String, String> {
