@@ -103,9 +103,11 @@ fun generateTOC(processed: List<Entry>, tocTitle: String): String {
         "<li><a href=\"#${it.name}\">$name</a></li>"
     }
     return """<h1>$tocTitle</h1>
+<div id="toc" tabindex="0">
+  <img src="assets/images/list.svg" alt="Table of Contents"></img>
 <ol>
 $contents
-</ol>"""
+</ol></div>"""
 }
 
 fun writeFile(sourceFolder: String, subPath: String, fileName: String, contents: String, tabTitle: String, homeLink: String) {
