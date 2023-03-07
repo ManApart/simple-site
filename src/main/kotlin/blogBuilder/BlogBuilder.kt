@@ -2,7 +2,6 @@ package blogBuilder
 
 import com.vladsch.flexmark.ext.tables.TablesExtension
 import com.vladsch.flexmark.util.data.MutableDataSet
-import simpleSite.blogBuilder.SiteConfig
 import simpleSite.readSiteConfig
 import java.io.File
 import java.time.LocalDate
@@ -25,12 +24,12 @@ fun buildBlog(config: SiteConfig) {
 
     //Write individual entries
     processed.forEach { entry ->
-        writeFile(config.sourceFolder, config.blogs, entry.name, entry.html, entry.name.replace("-", " "))
+        writeFile(config.sourceFolder, config.blogs, entry.name, entry.html, entry.name.replace("-", " "), config.homeLink)
     }
 
     //write a page for all entries
     val content = prepFullFile(processed, config.toc, config.tocTitle)
-    writeFile(config.sourceFolder, config.blogs, "index", content, config.tabTitle)
+    writeFile(config.sourceFolder, config.blogs, "index", content, config.tabTitle, config.homeLink)
 
     val css = File("${config.sourceFolder}/styles.css").readText()
 
@@ -109,7 +108,7 @@ $contents
 </ol>"""
 }
 
-fun writeFile(sourceFolder: String, subPath: String, fileName: String, contents: String, tabTitle: String) {
+fun writeFile(sourceFolder: String, subPath: String, fileName: String, contents: String, tabTitle: String, homeLink: String) {
     val text = """
         <!DOCTYPE html>
         <html lang="en">
@@ -119,6 +118,7 @@ fun writeFile(sourceFolder: String, subPath: String, fileName: String, contents:
             <link rel="shortcut icon" type="image/png" href="/$subPath/assets/images/favicon.png" />
         </head>
         <body>
+            <div id="home-link"><a href="$homeLink"><img src="/$subPath/assets/images/home.svg"></img></a></div>
             $contents
         </body>
         </html>

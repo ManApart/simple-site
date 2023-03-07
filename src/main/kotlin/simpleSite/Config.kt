@@ -1,7 +1,7 @@
 package simpleSite
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import simpleSite.blogBuilder.SiteConfig
+import blogBuilder.SiteConfig
 import java.io.File
 
 
