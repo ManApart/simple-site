@@ -6,5 +6,5 @@ import watch
 fun main() {
     val config = readSiteConfig()
 
-    watch(config.sourceFolder, "${config.sourceFolder}/${config.blogs}") { buildBlog(config) }
+    watch(listOf(config.sourceFolder, "${config.sourceFolder}/${config.blogs}")) { buildBlog(config) }
 }

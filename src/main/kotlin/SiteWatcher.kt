@@ -2,23 +2,19 @@ import java.io.File
 import java.nio.file.FileSystems
 import java.nio.file.StandardWatchEventKinds
 
-fun watch(path: String, secondPath: String, builder: () -> Unit) {
-    val pathToWatch = File(path).toPath()
-    val pathToWatch2 = File(secondPath).toPath()
+fun watch(paths: List<String>, builder: () -> Unit) {
     val watchService = FileSystems.getDefault().newWatchService()
 
-    val pathKey = pathToWatch.register(
-        watchService, StandardWatchEventKinds.ENTRY_CREATE,
-        StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE
-    )
-    val pathKey2 = pathToWatch2.register(
-        watchService, StandardWatchEventKinds.ENTRY_CREATE,
-        StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE
-    )
+    val watchKeys = paths.map { File(it).toPath() }.map {
+        it.register(
+            watchService, StandardWatchEventKinds.ENTRY_CREATE,
+            StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE
+        )
+    }
 
     builder()
     var lastBuild = System.currentTimeMillis()
-    println("Starting to watch $pathToWatch and $pathToWatch2")
+    println("Starting to watch ${paths.joinToString()}")
     while (true) {
         val watchKey = watchService.take()
 
@@ -42,6 +38,5 @@ fun watch(path: String, secondPath: String, builder: () -> Unit) {
         }
     }
 
-    pathKey.cancel()
-    pathKey2.cancel()
+    watchKeys.forEach { it.cancel() }
 }

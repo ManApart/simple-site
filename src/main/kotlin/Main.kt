@@ -21,12 +21,12 @@ fun main(args: Array<String>) {
         "build-site" -> buildSite(source)
         "watch-site" -> {
             val cssPath = "$source/css"
-            watch(source, cssPath) { buildSite(source) }
+            watch(listOf(source, cssPath)) { buildSite(source) }
         }
         "build-blog" -> buildBlog(readSiteConfig(source))
         "watch-blog" -> {
             val config = readSiteConfig(source)
-            watch(config.sourceFolder, "${config.sourceFolder}/${config.blogs}") { buildBlog(config) }
+            watch(listOf(config.sourceFolder, "${config.sourceFolder}/${config.blogs}")) { buildBlog(config) }
         }
         else -> throw IllegalArgumentException("Unknown build type: ${args.first()}.\n ${help()}")
     }
