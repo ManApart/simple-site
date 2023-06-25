@@ -11,7 +11,6 @@ import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.parser.Parser
 import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
-import org.w3c.dom.Document
 import simpleSite.codeBlock.formatCodeBlocks
 
 fun main() {
@@ -26,15 +25,17 @@ fun buildBlog(config: SiteConfig) {
 
     //Write individual entries
     processed.forEach { entry ->
-        writeFile(config.sourceFolder, config.blogs, entry.name, entry.html, entry.name.replace("-", " "), config.homeLink)
+        writeFile(config.sourceFolder, config.blogs, entry.name, entry.name.replace("-", " "), config.homeLink, entry.html)
     }
 
     //write a page for all entries
     if (config.singlePageToc) {
-        writeFile2(config.sourceFolder, config.blogs, "index", config.tabTitle, config.homeLink) { prepFullPageToc(processed, config.tocTitle) }
+        writeFile(config.sourceFolder, config.blogs, "index", config.tabTitle, config.homeLink) { prepFullPageToc(processed, config.tocTitle) }
     } else {
-        val content = prepFullFile(processed, config.toc, config.tocTitle)
-        writeFile(config.sourceFolder, config.blogs, "index", content, config.tabTitle, config.homeLink)
+        writeFile(config.sourceFolder, config.blogs, "index", config.tabTitle, config.homeLink) {
+            if (config.toc) generateTOC(processed, config.tocTitle)
+            processed.forEach { unsafe { it.html } }
+        }
     }
     val css = File("${config.sourceFolder}/styles.css").readText()
 
@@ -97,23 +98,25 @@ private fun processSingleFile(fileText: String, subPath: String, parser: Parser,
 }
 
 
-fun prepFullFile(processed: List<Entry>, includeTOC: Boolean, tocTitle: String): String {
-    val prefix = if (includeTOC) generateTOC(processed, tocTitle) else ""
-    return prefix + processed.joinToString("\n") { it.html }
-}
-
-fun generateTOC(processed: List<Entry>, tocTitle: String): String {
-    val contents = processed.joinToString("\n") {
-        val name = it.name.replace("-", " ")
-        "<li><a href=\"#${it.name}\">$name</a></li>"
+fun BODY.generateTOC(processed: List<Entry>, tocTitle: String) {
+    h1 { +tocTitle }
+    div {
+        id = "toc"
+        tabIndex = "0"
+        img("Table of Contents") { src = "assets/images/list.svg" }
+        div("toc-list") {
+            ol {
+                processed.forEach { entry ->
+                    li("toc-entry") {
+                        a {
+                            href = "#${entry.name}"
+                            +entry.name
+                        }
+                    }
+                }
+            }
+        }
     }
-    return """<h1>$tocTitle</h1>
-<div id="toc" tabindex="0">
-  <img src="assets/images/list.svg" alt="Table of Contents"></img>
-  <div id="toc-list">
-<ol>
-$contents
-</ol></div></div>"""
 }
 
 fun BODY.prepFullPageToc(processed: List<Entry>, tocTitle: String) {
@@ -140,29 +143,13 @@ fun BODY.prepFullPageToc(processed: List<Entry>, tocTitle: String) {
     }
 }
 
-fun writeFile(sourceFolder: String, subPath: String, fileName: String, contents: String, tabTitle: String, homeLink: String) {
-    val text = """
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <title>$tabTitle</title>
-            <link href="/$subPath/assets/css/styles.css" rel="stylesheet">
-            <link rel="shortcut icon" type="image/png" href="/$subPath/assets/images/favicon.png" />
-            <meta name="view-transition" content="same-origin" />
-        </head>
-        <body>
-            <div id="home-link"><a href="$homeLink"><img src="/$subPath/assets/images/home.svg"></img></a></div>
-            $contents
-        </body>
-        </html>
-    """.trimIndent()
-
-    File("$sourceFolder/out/$subPath/$fileName.html").also {
-        it.parentFile.mkdirs()
-    }.writeText(text)
+fun writeFile(sourceFolder: String, subPath: String, fileName: String, tabTitle: String, homeLink: String, contents: String) {
+    writeFile(sourceFolder, subPath, fileName, tabTitle, homeLink) {
+        unsafe { +contents }
+    }
 }
 
-fun writeFile2(sourceFolder: String, subPath: String, fileName: String, tabTitle: String, homeLink: String, contents: BODY.() -> Unit) {
+fun writeFile(sourceFolder: String, subPath: String, fileName: String, tabTitle: String, homeLink: String, contents: BODY.() -> Unit) {
     val text = StringBuffer().appendHTML().html {
         head {
             title(tabTitle)
