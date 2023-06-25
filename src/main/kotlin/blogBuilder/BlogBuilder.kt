@@ -132,7 +132,7 @@ fun BODY.prepFullPageToc(processed: List<Entry>, tocTitle: String) {
                     entries.forEach { entry ->
                         li("toc-$year-entry") {
                             a {
-                                href = entry.name
+                                href = "${entry.name}.html"
                                 +entry.name
                             }
                         }
