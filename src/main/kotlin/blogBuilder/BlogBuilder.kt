@@ -9,8 +9,10 @@ import java.time.format.DateTimeFormatter
 import com.vladsch.flexmark.util.ast.Node
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.parser.Parser
+import kotlinx.html.*
+import kotlinx.html.stream.appendHTML
+import org.w3c.dom.Document
 import simpleSite.codeBlock.formatCodeBlocks
-
 
 fun main() {
     val config = readSiteConfig()
@@ -28,9 +30,12 @@ fun buildBlog(config: SiteConfig) {
     }
 
     //write a page for all entries
-    val content = prepFullFile(processed, config.toc, config.tocTitle)
-    writeFile(config.sourceFolder, config.blogs, "index", content, config.tabTitle, config.homeLink)
-
+    if (config.singlePageToc) {
+        writeFile2(config.sourceFolder, config.blogs, "index", config.tabTitle, config.homeLink) { prepFullPageToc(processed, config.tocTitle) }
+    } else {
+        val content = prepFullFile(processed, config.toc, config.tocTitle)
+        writeFile(config.sourceFolder, config.blogs, "index", content, config.tabTitle, config.homeLink)
+    }
     val css = File("${config.sourceFolder}/styles.css").readText()
 
     File("${config.sourceFolder}/out/${config.blogs}/assets/css/styles.css").also {
@@ -111,6 +116,30 @@ $contents
 </ol></div></div>"""
 }
 
+fun BODY.prepFullPageToc(processed: List<Entry>, tocTitle: String) {
+    val blogByYear = processed.groupBy { it.date.year }
+
+    h1 { +tocTitle }
+    div {
+        id = "toc"
+        blogByYear.forEach { (year, entries) ->
+            div("toc-year") {
+                h2 { +"$year" }
+                ol {
+                    entries.forEach { entry ->
+                        li("toc-$year-entry") {
+                            a {
+                                href = entry.name
+                                +entry.name
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 fun writeFile(sourceFolder: String, subPath: String, fileName: String, contents: String, tabTitle: String, homeLink: String) {
     val text = """
         <!DOCTYPE html>
@@ -119,6 +148,7 @@ fun writeFile(sourceFolder: String, subPath: String, fileName: String, contents:
             <title>$tabTitle</title>
             <link href="/$subPath/assets/css/styles.css" rel="stylesheet">
             <link rel="shortcut icon" type="image/png" href="/$subPath/assets/images/favicon.png" />
+            <meta name="view-transition" content="same-origin" />
         </head>
         <body>
             <div id="home-link"><a href="$homeLink"><img src="/$subPath/assets/images/home.svg"></img></a></div>
@@ -127,6 +157,30 @@ fun writeFile(sourceFolder: String, subPath: String, fileName: String, contents:
         </html>
     """.trimIndent()
 
+    File("$sourceFolder/out/$subPath/$fileName.html").also {
+        it.parentFile.mkdirs()
+    }.writeText(text)
+}
+
+fun writeFile2(sourceFolder: String, subPath: String, fileName: String, tabTitle: String, homeLink: String, contents: BODY.() -> Unit) {
+    val text = StringBuffer().appendHTML().html {
+        head {
+            title(tabTitle)
+            link("/$subPath/assets/css/styles.css", "stylesheet")
+            link("/$subPath/assets/css/images/favicon.png", "shortcut icon", "image/png")
+            meta("view-transition", "same-origin")
+        }
+        body {
+            div {
+                id = "home-link"
+                a {
+                    href = homeLink
+                    img { src = "/$subPath/assets/images/home.svg" }
+                }
+            }
+            contents()
+        }
+    }.toString()
     File("$sourceFolder/out/$subPath/$fileName.html").also {
         it.parentFile.mkdirs()
     }.writeText(text)
