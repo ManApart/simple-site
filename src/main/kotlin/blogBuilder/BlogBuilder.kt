@@ -13,6 +13,8 @@ import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
 import simpleSite.codeBlock.formatCodeBlocks
 
+val dateFormat = DateTimeFormatter.ofPattern("M-dd-yyyy")
+
 fun main() {
     val config = readSiteConfig()
     buildBlog(config)
@@ -92,7 +94,7 @@ private fun processSingleFile(fileText: String, subPath: String, parser: Parser,
         html = html.replaceFirst(dateText, "<div class=\"entry-date\">$dateText</div>")
     }
 
-    html = "<div class=\"entry\">$html</div>"
+    html = "<div class=\"entry\" style=\"view-transition-name: ${cleanedName}\">$html</div>"
 
     return Entry(cleanedName, date, fileText, html)
 }
@@ -131,10 +133,11 @@ fun BODY.prepFullPageToc(processed: List<Entry>, tocTitle: String) {
                 ol {
                     entries.forEach { entry ->
                         li("toc-$year-entry") {
-                            a {
-                                href = "${entry.name}.html"
-                                +entry.name
+                            style = "view-transition-name: ${entry.name}"
+                            a("${entry.name}.html", classes = "toc-entry") {
+                                +entry.name.replace("-", " ")
                             }
+                            p("toc-entry-date") { +dateFormat.format(entry.date) }
                         }
                     }
                 }
