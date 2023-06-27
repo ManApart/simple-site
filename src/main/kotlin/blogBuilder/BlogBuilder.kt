@@ -27,14 +27,14 @@ fun buildBlog(config: SiteConfig) {
 
     //Write individual entries
     processed.forEach { entry ->
-        writeFile(config.sourceFolder, config.blogs, entry.name, entry.name.replace("-", " "), config.homeLink, entry.html)
+        writeFile(config.sourceFolder, config.blogs, entry.name, entry.name.replace("-", " "), config.homeLink, "blog-entry", entry.html)
     }
 
     //write a page for all entries
     if (config.singlePageToc) {
-        writeFile(config.sourceFolder, config.blogs, "index", config.tabTitle, config.homeLink) { prepFullPageToc(processed, config.tocTitle) }
+        writeFile(config.sourceFolder, config.blogs, "index", config.tabTitle, config.homeLink, "blogs") { prepFullPageToc(processed, config.tocTitle) }
     } else {
-        writeFile(config.sourceFolder, config.blogs, "index", config.tabTitle, config.homeLink) {
+        writeFile(config.sourceFolder, config.blogs, "index", config.tabTitle, config.homeLink, "blogs") {
             if (config.toc) generateTOC(processed, config.tocTitle)
             processed.forEach { unsafe { it.html } }
         }
@@ -130,14 +130,14 @@ fun BODY.prepFullPageToc(processed: List<Entry>, tocTitle: String) {
         blogByYear.forEach { (year, entries) ->
             div("toc-year") {
                 h2 { +"$year" }
-                ol {
+                ol("toc-year-entries") {
                     entries.forEach { entry ->
-                        li("toc-$year-entry") {
-                            style = "view-transition-name: ${entry.name}"
+                        li {
+//                            style = "view-transition-name: ${entry.name}"
                             a("${entry.name}.html", classes = "toc-entry") {
                                 +entry.name.replace("-", " ")
+                                p("toc-entry-date") { +dateFormat.format(entry.date) }
                             }
-                            p("toc-entry-date") { +dateFormat.format(entry.date) }
                         }
                     }
                 }
@@ -146,14 +146,15 @@ fun BODY.prepFullPageToc(processed: List<Entry>, tocTitle: String) {
     }
 }
 
-fun writeFile(sourceFolder: String, subPath: String, fileName: String, tabTitle: String, homeLink: String, contents: String) {
-    writeFile(sourceFolder, subPath, fileName, tabTitle, homeLink) {
+fun writeFile(sourceFolder: String, subPath: String, fileName: String, tabTitle: String, homeLink: String, pageId: String, contents: String) {
+    writeFile(sourceFolder, subPath, fileName, tabTitle, homeLink, pageId) {
         unsafe { +contents }
     }
 }
 
-fun writeFile(sourceFolder: String, subPath: String, fileName: String, tabTitle: String, homeLink: String, contents: BODY.() -> Unit) {
+fun writeFile(sourceFolder: String, subPath: String, fileName: String, tabTitle: String, homeLink: String, pageId: String, contents: BODY.() -> Unit) {
     val text = StringBuffer().appendHTML().html {
+        attributes["data-page"] = pageId
         head {
             title(tabTitle)
             link("/$subPath/assets/css/styles.css", "stylesheet")
