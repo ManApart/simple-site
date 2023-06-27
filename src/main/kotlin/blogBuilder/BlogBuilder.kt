@@ -138,6 +138,7 @@ fun BODY.prepFullPageToc(processed: List<Entry>, tocTitle: String) {
                                 +entry.name.replace("-", " ")
                                 p("toc-entry-date") { +dateFormat.format(entry.date) }
                             }
+                            div("small-line-break")
                         }
                     }
                 }
