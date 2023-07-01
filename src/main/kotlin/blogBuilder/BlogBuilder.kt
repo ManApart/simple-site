@@ -85,17 +85,16 @@ private fun processSingleFile(fileText: String, subPath: String, parser: Parser,
     val document: Node = parser.parse(toParse)
 
     var html = renderer.render(document)
-        .replace("<body>", "")
-        .replace("</body>", "")
-        .replace("<h1>", "<h1 id=\"$cleanedName\">")
         .formatCodeBlocks()
+        .replace("<h1>", "<h1 id=\"$cleanedName\">")
+        .let { html -> html.substring(html.indexOf("<body>")+ "<body>".length) }
+        .let { html -> html.substring(0, html.indexOf("</body>")) }
 
     if (date != LocalDate.MIN) {
         html = html.replaceFirst(dateText, "<div class=\"entry-date\">$dateText</div>")
     }
 
     html = "<div class=\"entry\">$html</div>"
-//    html = "<div class=\"entry\" style=\"view-transition-name: ${cleanedName}\">$html</div>"
 
     return Entry(cleanedName, date, fileText, html)
 }
