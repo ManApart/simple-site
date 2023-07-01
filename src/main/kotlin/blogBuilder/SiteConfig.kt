@@ -1,5 +1,8 @@
 package blogBuilder
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 class SiteConfig(
     val blogs: String,
     val tabTitle: String = "Home",

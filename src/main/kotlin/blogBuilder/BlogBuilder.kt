@@ -27,14 +27,14 @@ fun buildBlog(config: SiteConfig) {
 
     //Write individual entries
     processed.forEach { entry ->
-        writeFile(config.sourceFolder, config.blogs, entry.name, entry.name.replace("-", " "), config.homeLink, "blog-entry", entry.html)
+        writeFile(config.sourceFolder, config.blogs, entry.name, entry.name.replace("-", " "), config.homeLink, "blog-entry", "blog-entry-view", entry.html)
     }
 
     //write a page for all entries
     if (config.singlePageToc) {
-        writeFile(config.sourceFolder, config.blogs, "index", config.tabTitle, config.homeLink, "blogs") { prepFullPageToc(processed, config.tocTitle) }
+        writeFile(config.sourceFolder, config.blogs, "index", config.tabTitle, config.homeLink, "blogs", "blogs-toc-view") { prepFullPageToc(processed, config.tocTitle) }
     } else {
-        writeFile(config.sourceFolder, config.blogs, "index", config.tabTitle, config.homeLink, "blogs") {
+        writeFile(config.sourceFolder, config.blogs, "index", config.tabTitle, config.homeLink, "blogs", "blogs-toc-view") {
             if (config.toc) generateTOC(processed, config.tocTitle)
             processed.forEach { unsafe { it.html } }
         }
@@ -94,7 +94,8 @@ private fun processSingleFile(fileText: String, subPath: String, parser: Parser,
         html = html.replaceFirst(dateText, "<div class=\"entry-date\">$dateText</div>")
     }
 
-    html = "<div class=\"entry\" style=\"view-transition-name: ${cleanedName}\">$html</div>"
+    html = "<div class=\"entry\">$html</div>"
+//    html = "<div class=\"entry\" style=\"view-transition-name: ${cleanedName}\">$html</div>"
 
     return Entry(cleanedName, date, fileText, html)
 }
@@ -123,7 +124,6 @@ fun BODY.generateTOC(processed: List<Entry>, tocTitle: String) {
 
 fun BODY.prepFullPageToc(processed: List<Entry>, tocTitle: String) {
     val blogByYear = processed.groupBy { it.date.year }
-
     h1 { +tocTitle }
     div {
         id = "toc"
@@ -147,13 +147,13 @@ fun BODY.prepFullPageToc(processed: List<Entry>, tocTitle: String) {
     }
 }
 
-fun writeFile(sourceFolder: String, subPath: String, fileName: String, tabTitle: String, homeLink: String, pageId: String, contents: String) {
-    writeFile(sourceFolder, subPath, fileName, tabTitle, homeLink, pageId) {
+fun writeFile(sourceFolder: String, subPath: String, fileName: String, tabTitle: String, homeLink: String, pageId: String, bodyClasses: String, contents: String) {
+    writeFile(sourceFolder, subPath, fileName, tabTitle, homeLink, pageId, bodyClasses) {
         unsafe { +contents }
     }
 }
 
-fun writeFile(sourceFolder: String, subPath: String, fileName: String, tabTitle: String, homeLink: String, pageId: String, contents: BODY.() -> Unit) {
+fun writeFile(sourceFolder: String, subPath: String, fileName: String, tabTitle: String, homeLink: String, pageId: String, bodyClasses: String, contents: BODY.() -> Unit) {
     val text = StringBuffer().appendHTML().html {
         attributes["data-page"] = pageId
         head {
@@ -162,7 +162,7 @@ fun writeFile(sourceFolder: String, subPath: String, fileName: String, tabTitle:
             link("/$subPath/assets/css/images/favicon.png", "shortcut icon", "image/png")
             meta("view-transition", "same-origin")
         }
-        body {
+        body(bodyClasses) {
             div {
                 id = "home-link"
                 a {
