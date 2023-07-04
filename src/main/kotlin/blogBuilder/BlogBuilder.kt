@@ -158,7 +158,7 @@ fun writeFile(sourceFolder: String, subPath: String, fileName: String, tabTitle:
         head {
             title(tabTitle)
             link("/$subPath/assets/css/styles.css", "stylesheet")
-            link("/$subPath/assets/css/images/favicon.png", "shortcut icon", "image/png")
+            link("/$subPath/assets/images/favicon.png", "shortcut icon", "image/png")
             meta("view-transition", "same-origin")
         }
         body(bodyClasses) {
