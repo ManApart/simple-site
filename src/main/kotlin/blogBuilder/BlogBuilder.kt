@@ -22,19 +22,20 @@ fun main() {
 
 fun buildBlog(config: SiteConfig) {
     val files = parseFiles("${config.sourceFolder}/${config.blogs}/")
+    val footer = File("${config.sourceFolder}/footer.html").let { if (it.exists()) it.readText() else "" }
 
     val processed = process(files, config.blogs)
 
     //Write individual entries
     processed.forEach { entry ->
-        writeFile(config.sourceFolder, config.blogs, entry.name, entry.name.replace("-", " "), config.homeLink, "blog-entry", "blog-entry-view", entry.html)
+        writeFile(config.sourceFolder, config.blogs, entry.name, entry.name.replace("-", " "), config.homeLink, "blog-entry", "blog-entry-view", entry.html, footer)
     }
 
     //write a page for all entries
     if (config.singlePageToc) {
-        writeFile(config.sourceFolder, config.blogs, "index", config.tabTitle, config.homeLink, "blogs", "blogs-toc-view") { prepFullPageToc(processed, config.tocTitle) }
+        writeFile(config.sourceFolder, config.blogs, "index", config.tabTitle, config.homeLink, "blogs", "blogs-toc-view", footer) { prepFullPageToc(processed, config.tocTitle) }
     } else {
-        writeFile(config.sourceFolder, config.blogs, "index", config.tabTitle, config.homeLink, "blogs", "blogs-toc-view") {
+        writeFile(config.sourceFolder, config.blogs, "index", config.tabTitle, config.homeLink, "blogs", "blogs-toc-view", footer) {
             if (config.toc) generateTOC(processed, config.tocTitle)
             processed.forEach { unsafe { it.html } }
         }
@@ -87,7 +88,7 @@ private fun processSingleFile(fileText: String, subPath: String, parser: Parser,
     var html = renderer.render(document)
         .formatCodeBlocks()
         .replace("<h1>", "<h1 id=\"$cleanedName\">")
-        .let { html -> html.substring(html.indexOf("<body>")+ "<body>".length) }
+        .let { html -> html.substring(html.indexOf("<body>") + "<body>".length) }
         .let { html -> html.substring(0, html.indexOf("</body>")) }
 
     if (date != LocalDate.MIN) {
@@ -146,13 +147,13 @@ fun BODY.prepFullPageToc(processed: List<Entry>, tocTitle: String) {
     }
 }
 
-fun writeFile(sourceFolder: String, subPath: String, fileName: String, tabTitle: String, homeLink: String, pageId: String, bodyClasses: String, contents: String) {
-    writeFile(sourceFolder, subPath, fileName, tabTitle, homeLink, pageId, bodyClasses) {
+fun writeFile(sourceFolder: String, subPath: String, fileName: String, tabTitle: String, homeLink: String?, pageId: String, bodyClasses: String, contents: String, footer: String) {
+    writeFile(sourceFolder, subPath, fileName, tabTitle, homeLink, pageId, bodyClasses, footer) {
         unsafe { +contents }
     }
 }
 
-fun writeFile(sourceFolder: String, subPath: String, fileName: String, tabTitle: String, homeLink: String, pageId: String, bodyClasses: String, contents: BODY.() -> Unit) {
+fun writeFile(sourceFolder: String, subPath: String, fileName: String, tabTitle: String, homeLink: String?, pageId: String, bodyClasses: String, footer: String, contents: BODY.() -> Unit) {
     val text = StringBuffer().appendHTML().html {
         attributes["data-page"] = pageId
         head {
@@ -162,14 +163,17 @@ fun writeFile(sourceFolder: String, subPath: String, fileName: String, tabTitle:
             meta("view-transition", "same-origin")
         }
         body(bodyClasses) {
-            div {
-                id = "home-link"
-                a {
-                    href = homeLink
-                    img { src = "/$subPath/assets/images/home.svg" }
+            if (homeLink != null) {
+                div {
+                    id = "home-link"
+                    a {
+                        href = homeLink
+                        img { src = "/$subPath/assets/images/home.svg" }
+                    }
                 }
             }
             contents()
+            unsafe { +footer }
         }
     }.toString()
     File("$sourceFolder/out/$subPath/$fileName.html").also {

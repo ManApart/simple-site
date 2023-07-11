@@ -9,7 +9,7 @@ class SiteConfig(
     val toc: Boolean = false,
     val singlePageToc: Boolean = false,
     val tocTitle: String = "Table of Contents",
-    val homeLink: String = "",
+    val homeLink: String? = null,
 ) {
     var sourceFolder = ""
 }
