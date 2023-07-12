@@ -24,7 +24,7 @@ fun buildBlog(config: SiteConfig) {
     val files = parseFiles("${config.sourceFolder}/${config.blogs}/")
     val footer = File("${config.sourceFolder}/footer.html").let { if (it.exists()) it.readText() else "" }
 
-    val processed = process(files, config.blogs)
+    val processed = process(files, config.blogs, !config.singlePageToc)
 
     //Write individual entries
     processed.forEach { entry ->
@@ -54,18 +54,18 @@ fun parseFiles(sourceFolder: String): Map<String, String> {
     }
 }
 
-fun process(files: Map<String, String>, subPath: String): List<Entry> {
+fun process(files: Map<String, String>, subPath: String, pageTitleIsLink: Boolean): List<Entry> {
     val options = MutableDataSet()
     options.set(Parser.EXTENSIONS, listOf(TablesExtension.create()))
     val parser: Parser = Parser.builder(options).build()
     val renderer: HtmlRenderer = HtmlRenderer.builder(options).build()
 
     return files.values
-        .map { processSingleFile(it, subPath, parser, renderer) }
+        .map { processSingleFile(it, subPath, parser, renderer, pageTitleIsLink) }
         .sortedByDescending { it.date }
 }
 
-private fun processSingleFile(fileText: String, subPath: String, parser: Parser, renderer: HtmlRenderer): Entry {
+private fun processSingleFile(fileText: String, subPath: String, parser: Parser, renderer: HtmlRenderer, pageTitleIsLink: Boolean): Entry {
     val lines = fileText.split("\n")
     val name = lines[0]
         .replace("#", "")
@@ -79,7 +79,7 @@ private fun processSingleFile(fileText: String, subPath: String, parser: Parser,
         LocalDate.MIN
     }
 
-    val titleLine = "# [$name](/$subPath/$cleanedName.html)"
+    val titleLine = if (pageTitleIsLink) "# [$name](/$subPath/$cleanedName.html)" else "# $name"
     //Don't add extra spaces to tables
     val properlySpaced = lines.subList(1, lines.size).map { if (it.contains("|")) it else "$it\n" }
     val toParse = (listOf(titleLine + "\n") + properlySpaced).joinToString("\n")
@@ -127,18 +127,18 @@ fun BODY.prepFullPageToc(processed: List<Entry>, tocTitle: String) {
     h1 { +tocTitle }
     div {
         id = "toc"
-        blogByYear.forEach { (year, entries) ->
+        blogByYear.entries.forEach { (year, entries) ->
             div("toc-year") {
                 h2 { +"$year" }
                 ol("toc-year-entries") {
-                    entries.forEach { entry ->
+                    entries.forEachIndexed { i, entry ->
                         li {
 //                            style = "view-transition-name: ${entry.name}"
                             a("${entry.name}.html", classes = "toc-entry") {
                                 +entry.name.replace("-", " ")
                                 p("toc-entry-date") { +dateFormat.format(entry.date) }
                             }
-                            div("small-line-break")
+                            if (i != blogByYear.size) div("small-line-break")
                         }
                     }
                 }
