@@ -115,11 +115,11 @@ fun Document.replaceHeaders() {
     select("h2").forEach { h2 ->
         val headerText = h2.text()
         val headerId = headerText.replace(" ", "-")
-        h2.replaceWith(Element("a").also { a ->
-            a.attr("href", "#$headerId")
-            a.appendChild(Element("h2").apply {
-                id(headerId)
-                text(headerText)
+        h2.replaceWith(Element("h2").apply {
+            id(headerId)
+            appendChild(Element("a").also { a ->
+                a.attr("href", "#$headerId")
+                a.text(headerText)
             })
         })
     }
