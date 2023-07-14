@@ -1,5 +1,6 @@
 package blogBuilder
 
+import com.vladsch.flexmark.ext.anchorlink.AnchorLink
 import com.vladsch.flexmark.ext.tables.TablesExtension
 import com.vladsch.flexmark.util.data.MutableDataSet
 import simpleSite.readSiteConfig
@@ -11,6 +12,9 @@ import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.parser.Parser
 import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
+import org.jsoup.nodes.Element
 import simpleSite.codeBlock.formatCodeBlocks
 
 val dateFormat = DateTimeFormatter.ofPattern("M-dd-yyyy")
@@ -81,12 +85,19 @@ private fun processSingleFile(fileText: String, subPath: String, parser: Parser,
 
     val titleLine = if (pageTitleIsLink) "# [$name](/$subPath/$cleanedName.html)" else "# $name"
     //Don't add extra spaces to tables
-    val properlySpaced = lines.subList(1, lines.size).map { if (it.contains("|")) it else "$it\n" }
-    val toParse = (listOf(titleLine + "\n") + properlySpaced).joinToString("\n")
+    val cleanedLines = lines.subList(1, lines.size)
+        .map { if (it.contains("|")) it else "$it\n" }
+    val toParse = (listOf(titleLine + "\n") + cleanedLines).joinToString("\n")
     val document: Node = parser.parse(toParse)
 
-    var html = renderer.render(document)
-        .formatCodeBlocks()
+    val htmlDoc = renderer.render(document)
+        .let { Jsoup.parse(it) }
+        .apply {
+            replaceHeaders()
+            formatCodeBlocks()
+        }
+
+    var html = htmlDoc.html()
         .replace("<h1>", "<h1 id=\"$cleanedName\">")
         .let { html -> html.substring(html.indexOf("<body>") + "<body>".length) }
         .let { html -> html.substring(0, html.indexOf("</body>")) }
@@ -98,6 +109,20 @@ private fun processSingleFile(fileText: String, subPath: String, parser: Parser,
     html = "<div class=\"entry\">$html</div>"
 
     return Entry(cleanedName, date, fileText, html)
+}
+
+fun Document.replaceHeaders() {
+    select("h2").forEach { h2 ->
+        val headerText = h2.text()
+        val headerId = headerText.replace(" ", "-")
+        h2.replaceWith(Element("a").also { a ->
+            a.attr("href", "#$headerId")
+            a.appendChild(Element("h2").apply {
+                id(headerId)
+                text(headerText)
+            })
+        })
+    }
 }
 
 

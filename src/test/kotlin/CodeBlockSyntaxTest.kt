@@ -1,7 +1,7 @@
 import org.jsoup.Jsoup
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import simpleSite.codeBlock.formatCodeBlocks
+import simpleSite.codeBlock.formatCodeBlock
 
 /*
 Highlight syntax in code blocks. So a naive version of higlightjs, but at generation time instead of runtime
@@ -133,4 +133,11 @@ class CodeBlockSyntaxTest {
         val actual = source.formatCodeBlocks().unwrap()
         assertEquals(expected, actual)
     }
+}
+
+fun String.formatCodeBlocks(): String {
+    val doc = Jsoup.parse(this)
+    doc.select("code").forEach { formatCodeBlock(it) }
+
+    return doc.html()
 }

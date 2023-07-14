@@ -1,6 +1,6 @@
 package simpleSite.codeBlock
 
-import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 
 /*
@@ -10,22 +10,23 @@ https://highlightjs.org/
 private val tokenTypes = listOf(
     TokenType("hljs-keyword", ExactMatcher(listOf("class", "object", "external", "return", "val ", "var ", "as "))),
     TokenType("hljs-function", ExactMatcher(listOf("fun"))),
-    TokenType("hljs-meta", CapMatcher(listOf(
-        Cap(listOf("@"), listOf(" ", "\n", "("), includeStart = true)
-    ))),
+    TokenType(
+        "hljs-meta", CapMatcher(
+            listOf(
+                Cap(listOf("@"), listOf(" ", "\n", "("), includeStart = true)
+            )
+        )
+    ),
     TokenType("hljs-string", CapMatcher(Cap("\"", "\""))),
     TokenType("hljs-title", CapMatcher(Cap(listOf(".", "fun "), listOf("(", " ", "{")))),
     TokenType("hljs-type", CapMatcher(Cap(listOf(": ", "as "), listOf(")", ",", " ", "\n")))),
 )
 
-fun String.formatCodeBlocks(): String {
-    val doc = Jsoup.parse(this)
-    doc.select("code").forEach { formatCodeBlock(it) }
-
-    return doc.html()
+fun Document.formatCodeBlocks() {
+    select("code").forEach { formatCodeBlock(it) }
 }
 
-private fun formatCodeBlock(block: Element) {
+fun formatCodeBlock(block: Element) {
     block.addClass("hljs")
     var html = block.html()
     getTokens(block.html())
