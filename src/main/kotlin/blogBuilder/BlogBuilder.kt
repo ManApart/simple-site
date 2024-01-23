@@ -186,6 +186,7 @@ fun writeFile(sourceFolder: String, subPath: String, fileName: String, tabTitle:
             link("/$subPath/assets/css/styles.css", "stylesheet")
             link("/$subPath/assets/images/favicon.png", "shortcut icon", "image/png")
             meta("view-transition", "same-origin")
+            meta("viewport", "width=device-width, initial-scale=1")
         }
         body(bodyClasses) {
             if (homeLink != null) {
