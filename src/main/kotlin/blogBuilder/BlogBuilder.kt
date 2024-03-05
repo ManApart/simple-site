@@ -1,21 +1,20 @@
 package blogBuilder
 
-import com.vladsch.flexmark.ext.anchorlink.AnchorLink
 import com.vladsch.flexmark.ext.tables.TablesExtension
-import com.vladsch.flexmark.util.data.MutableDataSet
-import simpleSite.readSiteConfig
-import java.io.File
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import com.vladsch.flexmark.util.ast.Node
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.parser.Parser
+import com.vladsch.flexmark.util.ast.Node
+import com.vladsch.flexmark.util.data.MutableDataSet
 import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import simpleSite.codeBlock.formatCodeBlocks
+import simpleSite.readSiteConfig
+import java.io.File
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 val dateFormat = DateTimeFormatter.ofPattern("M-dd-yyyy")
 
@@ -41,7 +40,7 @@ fun buildBlog(config: SiteConfig) {
     } else {
         writeFile(config.sourceFolder, config.blogs, "index", config.tabTitle, config.homeLink, "blogs", "blogs-toc-view", footer) {
             if (config.toc) generateTOC(processed, config.tocTitle)
-            processed.forEach { unsafe { it.html } }
+            processed.forEach { unsafe { +it.html } }
         }
     }
     val css = File("${config.sourceFolder}/styles.css").readText()
