@@ -44,6 +44,6 @@ private fun getTokens(block: String): List<Token> {
 //Only take the top level tokens, ignore spans inside of spans
 private fun List<Token>.isSubToken(token: Token): Boolean {
     return any { possibleParent ->
-        possibleParent.start < token.start && possibleParent.end > token.end
+        possibleParent.start < token.start && possibleParent.end > token.start
     }
 }

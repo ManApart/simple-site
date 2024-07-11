@@ -133,6 +133,22 @@ class CodeBlockSyntaxTest {
         val actual = source.formatCodeBlocks().unwrap()
         assertEquals(expected, actual)
     }
+
+    @Test
+    fun stringsDoNotFormatInnerCode() {
+        val source = """
+            <code>
+            println("Updated verbose to ${"$"}{toolConfig.verbose}")
+            </code>
+        """
+        val expected = """
+            <code class="hljs">
+            println("<span class="hljs-string">Updated verbose to ${"$"}{toolConfig.verbose}</span>")
+            </code>""".trimIndent().replace("\n", "")
+
+        val actual = source.formatCodeBlocks().unwrap()
+        assertEquals(expected, actual)
+    }
 }
 
 fun String.formatCodeBlocks(): String {
