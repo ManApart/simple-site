@@ -94,6 +94,7 @@ private fun processSingleFile(fileText: String, subPath: String, parser: Parser,
         .apply {
             replaceHeaders()
             formatCodeBlocks()
+            makeLinksNewTabs()
         }
 
     var html = htmlDoc.html()
@@ -121,6 +122,12 @@ fun Document.replaceHeaders() {
                 a.text(headerText)
             })
         })
+    }
+}
+
+fun Document.makeLinksNewTabs() {
+    select("a").forEach { a ->
+        a.attr("target", "_blank")
     }
 }
 
