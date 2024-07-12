@@ -126,7 +126,7 @@ fun Document.replaceHeaders() {
 }
 
 fun Document.makeLinksNewTabs() {
-    select("a").forEach { a ->
+    select("a").filter { !it.attr("href").startsWith("#") }.forEach { a ->
         a.attr("target", "_blank")
     }
 }
